@@ -305,7 +305,7 @@ const pages = {
       <div class="cols"><div>${composerHTML(false)}<h3 style="margin:26px 0 12px">This session</h3><div class="list" id="history"><div class="empty small">Nothing yet. Your clips show up here.</div></div></div>
       <div class="list"><div class="card" id="usage"></div><div class="card" id="keys"></div></div></div></div>
       ${libraryHTML()}`;
-    wireComposer(); renderUsage(); renderKeys(); wireLibrary(); addclips.length; if (clips.length) addHistory(clips.shift());
+    wireComposer(); renderUsage(); renderKeys(); wireLibrary(); if (clips.length) addHistory(clips.shift());
   },
 
   async clone() {
