@@ -215,3 +215,5 @@ code { font-family: ui-monospace, "JetBrains Mono", "SF Mono", Consolas, monospa
 .hint.flash { color: var(--warn); animation: pulse .5s 3 }
 kbd { font-family: inherit }
 @media (max-width: 720px) { .hide-sm { display: none } }
+/* #view gets focus on page change (for screen readers); hide that focus ring */
+#view:focus, #view:focus-visible { outline: none }

@@ -43,6 +43,16 @@ for _ in $(seq 1 90); do S=$(curl -s -H "Authorization: Bearer $KEY" $U/v1/voice
 ok clone-ready "$S" '"status":"ready"'
 ok clone-email "$(grep -c 'is ready' $D/mail.log)" 1
 ok tts-own-clone "$(c -X POST -H "Authorization: Bearer $KEY" -H "$J" -d "{\"text\":\"My own voice.\",\"voice\":\"$VID\"}" $U/v1/tts)" 200
+ok second-clone-blocked "$(c -b $D/ca -H "$H" -F file=@"$WAV" -F name=Two -F consent=yes $U/api/me/voices)" 429
+ok clones-used "$(curl -s -b $D/ca $U/api/me | grep -o '"clones_used":1')" '"clones_used":1'
+MR=$(curl -s -X POST -H "Authorization: Bearer $KEY" -H "$J" -d '{"prompt":"calm lofi beat","duration":10}' $U/v1/music)
+MID=$(echo "$MR" | grep -o 'm_[0-9a-f]*' | head -1)
+ok music-queued "$(echo "$MR" | grep -o '"status":"queued"')" '"status":"queued"'
+ok music-too-long "$(c -X POST -H "Authorization: Bearer $KEY" -H "$J" -d '{"prompt":"calm lofi beat","duration":60}' $U/v1/music)" 400
+ok music-status "$(c -H "Authorization: Bearer $KEY" $U/v1/music/$MID)" 200
+ok music-audio-not-ready "$(c -H "Authorization: Bearer $KEY" $U/v1/music/$MID/audio)" 404
+ok music-list "$(curl -s -b $D/ca $U/api/me/music | grep -c $MID)" 1
+ok music-usage "$(curl -s -H "Authorization: Bearer $KEY" $U/v1/usage | grep -o '"music":1')" '"music":1'
 ok private-hidden-from-library "$(curl -s $U/api/voices | grep -c $VID)" 0
 ok private-sample-anon "$(c $U/api/voices/$VID/sample)" 404
 # second user cannot use the private voice

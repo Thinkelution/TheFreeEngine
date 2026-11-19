@@ -46,8 +46,10 @@ MAILERSEND_KEY = os.environ.get("MAILERSEND_API_KEY", "")
 MAIL_LOG = os.environ.get("TFE_MAIL_LOG", "")  # dev/test: write emails to this file instead of sending
 COOKIE_SECURE = os.environ.get("TFE_COOKIE_SECURE", "1") == "1"
 MAX_CHARS = int(os.environ.get("TFE_MAX_CHARS", "1000"))
-DAILY_CHARS = int(os.environ.get("TFE_DAILY_CHARS", "20000"))
-DAILY_CLONES = int(os.environ.get("TFE_DAILY_CLONES", "3"))
+DAILY_CHARS = int(os.environ.get("TFE_DAILY_CHARS", "5000"))
+CLONES_PER_ACCOUNT = int(os.environ.get("TFE_CLONES_PER_ACCOUNT", "1"))  # lifetime, free plan
+DAILY_MUSIC = int(os.environ.get("TFE_DAILY_MUSIC", "3"))
+MUSIC_MAX_SEC = int(os.environ.get("TFE_MUSIC_MAX_SEC", "30"))
 MAX_USER_VOICES = int(os.environ.get("TFE_MAX_USER_VOICES", "10"))
 MAX_KEYS = 5
 WORKERS = int(os.environ.get("TFE_WORKERS", "2"))
@@ -140,15 +142,39 @@ def use_token(t: str, kind: str):
     return row["user_id"]
 
 
+_db.executescript("""
+CREATE TABLE IF NOT EXISTS music(
+  id TEXT PRIMARY KEY, owner_id INTEGER NOT NULL, prompt TEXT NOT NULL, duration INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'queued', error TEXT, created TEXT NOT NULL, started TEXT, finished TEXT);
+""")
+for _sql in ("ALTER TABLE users ADD COLUMN clones_used INTEGER DEFAULT 0",
+             "ALTER TABLE usage ADD COLUMN music INTEGER DEFAULT 0"):
+    try:
+        _db.execute(_sql)
+    except sqlite3.OperationalError:
+        pass  # column already there
+(DATA / "music").mkdir(exist_ok=True)
+
+
 def usage(uid: int) -> sqlite3.Row:
     ex("INSERT OR IGNORE INTO usage(user_id, day) VALUES(?,?)", (uid, today()))
-    return q1("SELECT chars, clones, requests FROM usage WHERE user_id=? AND day=?", (uid, today()))
+    return q1("SELECT u.chars, u.clones, u.requests, u.music, a.clones_used FROM usage u JOIN users a ON a.id=u.user_id "
+              "WHERE u.user_id=? AND u.day=?", (uid, today()))
 
 
-def charge(uid: int, chars=0, clones=0):
+def charge(uid: int, chars=0, clones=0, music=0):
     usage(uid)
-    ex("UPDATE usage SET chars=chars+?, clones=clones+?, requests=requests+1 WHERE user_id=? AND day=?",
-       (chars, clones, uid, today()))
+    ex("UPDATE usage SET chars=chars+?, clones=clones+?, music=music+?, requests=requests+1 WHERE user_id=? AND day=?",
+       (chars, clones, music, uid, today()))
+    if clones:
+        ex("UPDATE users SET clones_used=clones_used+? WHERE id=?", (clones, uid))
+
+
+def usage_out(us) -> dict:
+    return {"chars": us["chars"], "chars_limit": DAILY_CHARS, "max_chars_per_request": MAX_CHARS,
+            "clones_used": us["clones_used"], "clones_limit": CLONES_PER_ACCOUNT,
+            "music": us["music"], "music_limit": DAILY_MUSIC, "music_max_sec": MUSIC_MAX_SEC,
+            "max_voices": MAX_USER_VOICES, "plan": "free"}
 
 
 # ---------------------------------------------------------------- email
@@ -359,6 +385,7 @@ def clone_worker():
         except Exception as e:  # noqa: BLE001
             log.exception("clone %s failed", vid)
             ex("UPDATE voices SET status='failed', error=?, finished=? WHERE id=?", (str(e)[:300], now_iso(), vid))
+            ex("UPDATE users SET clones_used=MAX(0, clones_used-1) WHERE id=?", (row["owner_id"],))  # failed: give it back
             send_email(row["email"], f"We could not clone \"{row['name']}\"",
                        "Sorry, cloning failed. Try a clean recording of 10-20 seconds with one speaker.",
                        email_html("Cloning did not work", [
@@ -533,9 +560,7 @@ def _voice_out(r: sqlite3.Row, mine=False) -> dict:
 def me(u: User = Depends(session_user)):
     us = usage(u.id)
     return {"email": u["email"], "admin": u.is_admin, "created": u["created"],
-            "usage": {"chars": us["chars"], "chars_limit": DAILY_CHARS, "clones": us["clones"],
-                      "clones_limit": DAILY_CLONES, "max_chars_per_request": MAX_CHARS,
-                      "max_voices": MAX_USER_VOICES}}
+            "usage": usage_out(us)}
 
 
 @app.get("/api/keys")
@@ -599,8 +624,9 @@ async def _queue_clone(u: User, file: UploadFile, name: str, visibility: str, co
     if visibility not in ("public", "private"):
         raise HTTPException(400, "visibility must be 'public' or 'private'.")
     name = name.strip()[:60] or "My voice"
-    if usage(u.id)["clones"] >= DAILY_CLONES:
-        raise HTTPException(429, f"You can clone {DAILY_CLONES} voices a day. Try again tomorrow.")
+    if usage(u.id)["clones_used"] >= CLONES_PER_ACCOUNT:
+        raise HTTPException(429, f"The free plan includes {CLONES_PER_ACCOUNT} voice clone per account. "
+                                 "More clones come with Premium (coming soon).")
     if q1("SELECT COUNT(*) n FROM voices WHERE owner_id=? AND status!='failed'", (u.id,))["n"] >= MAX_USER_VOICES:
         raise HTTPException(409, f"You can keep up to {MAX_USER_VOICES} voices. Delete one first.")
     raw = await file.read(MAX_UPLOAD + 1)
@@ -672,7 +698,8 @@ class TTSRequest(BaseModel):
 @app.get("/v1/health")
 def health():
     return {"ok": True, "voices": len(state.get("house", {})),
-            "clone_queue": q1("SELECT COUNT(*) n FROM voices WHERE status IN ('queued','processing')")["n"]}
+            "clone_queue": q1("SELECT COUNT(*) n FROM voices WHERE status IN ('queued','processing')")["n"],
+            "music_queue": q1("SELECT COUNT(*) n FROM music WHERE status IN ('queued','processing')")["n"]}
 
 
 @app.get("/v1/voices")
@@ -711,9 +738,80 @@ def v1_voice_status(vid: str, u: User = Depends(api_user)):
 
 @app.get("/v1/usage")
 def v1_usage(u: User = Depends(api_user)):
-    us = usage(u.id)
-    return {"day": today(), "chars": us["chars"], "chars_limit": DAILY_CHARS, "clones": us["clones"],
-            "clones_limit": DAILY_CLONES, "max_chars_per_request": MAX_CHARS}
+    return {"day": today(), **usage_out(usage(u.id))}
+
+
+# ---------------------------------------------------------------- music (queued, made by music/worker.py)
+class MusicRequest(BaseModel):
+    prompt: str = Field(min_length=3, max_length=300)
+    duration: int = Field(default=30, ge=5, le=600)
+
+
+def _music_out(r: sqlite3.Row) -> dict:
+    d = {"id": r["id"], "prompt": r["prompt"], "duration": r["duration"], "status": r["status"],
+         "error": r["error"], "created": r["created"], "finished": r["finished"],
+         "audio": f"/v1/music/{r['id']}/audio" if r["status"] == "ready" else None}
+    if r["status"] == "queued":
+        d["queue_position"] = q1("SELECT COUNT(*) n FROM music WHERE status IN ('queued','processing') AND created<=?",
+                                 (r["created"],))["n"]
+    return d
+
+
+def _queue_music(u: User, body: MusicRequest) -> dict:
+    if body.duration > MUSIC_MAX_SEC:
+        raise HTTPException(400, f"Free tracks can be up to {MUSIC_MAX_SEC} seconds. Longer tracks come with Premium.")
+    if usage(u.id)["music"] >= DAILY_MUSIC:
+        raise HTTPException(429, f"You can make {DAILY_MUSIC} free tracks a day. More tomorrow!")
+    if q1("SELECT COUNT(*) n FROM music WHERE owner_id=? AND status IN ('queued','processing')", (u.id,))["n"] >= 2:
+        raise HTTPException(429, "You already have 2 tracks waiting. Wait for one to finish.")
+    mid = "m_" + uuid.uuid4().hex[:16]
+    ex("INSERT INTO music(id, owner_id, prompt, duration, created) VALUES(?,?,?,?,?)",
+       (mid, u.id, body.prompt.strip(), body.duration, now_iso()))
+    charge(u.id, music=1)
+    r = _music_out(q1("SELECT * FROM music WHERE id=?", (mid,)))
+    r["message"] = "You're in the music queue. We'll email you when your track is ready."
+    return r
+
+
+@app.post("/api/me/music")
+def music_web(body: MusicRequest, u: User = Depends(session_user)):
+    return _queue_music(u, body)
+
+
+@app.get("/api/me/music")
+def my_music(u: User = Depends(session_user)):
+    return {"tracks": [_music_out(r) for r in q("SELECT * FROM music WHERE owner_id=? ORDER BY created DESC LIMIT 50", (u.id,))]}
+
+
+@app.delete("/api/me/music/{mid}")
+def delete_music(mid: str, u: User = Depends(session_user)):
+    if not q1("SELECT 1 FROM music WHERE id=? AND owner_id=? AND status!='processing'", (mid, u.id)):
+        raise HTTPException(404, "Not found, or still being made.")
+    ex("DELETE FROM music WHERE id=?", (mid,))
+    (DATA / "music" / f"{mid}.mp3").unlink(missing_ok=True)
+    return {"ok": True}
+
+
+@app.post("/v1/music")
+def v1_music(body: MusicRequest, u: User = Depends(api_user)):
+    return _queue_music(u, body)
+
+
+@app.get("/v1/music/{mid}")
+def v1_music_status(mid: str, u: User = Depends(api_user)):
+    row = q1("SELECT * FROM music WHERE id=? AND owner_id=?", (mid, u.id))
+    if not row:
+        raise HTTPException(404, "Not found.")
+    return _music_out(row)
+
+
+@app.get("/v1/music/{mid}/audio")
+def v1_music_audio(mid: str, u: User = Depends(api_user)):
+    row = q1("SELECT status FROM music WHERE id=? AND owner_id=?", (mid, u.id))
+    path = DATA / "music" / f"{mid}.mp3"
+    if not row or row["status"] != "ready" or not path.exists():
+        raise HTTPException(404, "Not found, or not ready yet.")
+    return FileResponse(path, media_type="audio/mpeg", filename=f"{mid}.mp3")
 
 
 # ---------------------------------------------------------------- admin
@@ -725,10 +823,12 @@ def admin_stats(_: User = Depends(admin_user)):
         "verified": one("SELECT COUNT(*) FROM users WHERE verified=1"),
         "keys": one("SELECT COUNT(*) FROM api_keys WHERE revoked=0"),
         "voices": {r["status"]: r["n"] for r in q("SELECT status, COUNT(*) n FROM voices GROUP BY status")},
+        "music": {r["status"]: r["n"] for r in q("SELECT status, COUNT(*) n FROM music GROUP BY status")},
         "today": dict(q1("SELECT COALESCE(SUM(chars),0) chars, COALESCE(SUM(clones),0) clones, "
+                         "COALESCE(SUM(music),0) music, "
                          "COALESCE(SUM(requests),0) requests FROM usage WHERE day=?", (today(),))),
-        "last7": [dict(r) for r in q("SELECT day, SUM(chars) chars, SUM(requests) requests, SUM(clones) clones "
-                                     "FROM usage GROUP BY day ORDER BY day DESC LIMIT 7")],
+        "last7": [dict(r) for r in q("SELECT day, SUM(chars) chars, SUM(requests) requests, SUM(clones) clones, "
+                                     "SUM(music) music FROM usage GROUP BY day ORDER BY day DESC LIMIT 7")],
     }
 
 

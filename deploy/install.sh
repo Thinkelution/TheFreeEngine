@@ -3,7 +3,7 @@
 #   sudo bash install.sh <release.tar.gz>        (MailerSend key on stdin the first time, or to replace it)
 set -euo pipefail
 TAR=${1:?release tarball}
-DOMAIN=freeengine.thinkelution.com
+DOMAIN=thefreeengine.site   # main domain (links in emails); freeengine.thinkelution.com also works
 PORT=18710
 APP=/opt/freeengine
 VAR=/var/lib/freeengine
@@ -23,6 +23,17 @@ if [ ! -x $APP/venv/bin/uvicorn ] || [ "$(cat $APP/venv/.req 2>/dev/null)" != "$
   $APP/venv/bin/pip install -q --upgrade pip
   $APP/venv/bin/pip install -q -r "$REL/server/requirements.txt" --extra-index-url https://download.pytorch.org/whl/cpu
   echo "$REQ_SUM" > $APP/venv/.req
+fi
+
+# Music env: Stable Audio 3 with CPU torch, kept apart from the TTS env.
+if [ ! -x $APP/music-venv/bin/python ] || [ ! -f $APP/music-venv/.ok ]; then
+  [ -d $APP/stable-audio-3 ] || git clone -q --depth 1 https://github.com/Stability-AI/stable-audio-3.git $APP/stable-audio-3
+  sed -i -E 's/"(torch|torchaudio|torchvision)==[0-9.]+"/"\1"/g' $APP/stable-audio-3/pyproject.toml
+  python3 -m venv $APP/music-venv
+  $APP/music-venv/bin/pip install -q --upgrade pip
+  $APP/music-venv/bin/pip install -q torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cpu
+  $APP/music-venv/bin/pip install -q -e $APP/stable-audio-3 soundfile --extra-index-url https://download.pytorch.org/whl/cpu
+  touch $APP/music-venv/.ok
 fi
 
 # Hugging Face token for the gated cloning weights (copied once from the admin's login).
@@ -48,6 +59,7 @@ MAILERSEND_API_KEY=${MS_KEY:-$OLD_KEY}
 EOF
   chmod 600 $ENVF
 fi
+sed -i "s#^TFE_BASE_URL=.*#TFE_BASE_URL=https://$DOMAIN#" $ENVF
 
 cat > /etc/systemd/system/freeengine.service <<EOF
 [Unit]
@@ -78,19 +90,50 @@ chown -R root:root "$REL" && chmod -R a+rX,go-w "$REL"
 
 ln -sfn "$REL" $APP/current.new && mv -Tf $APP/current.new $APP/current
 
-# nginx: HTTP first; certbot adds TLS on the first run.
-SITE=/etc/nginx/sites-available/$DOMAIN
-if [ ! -f $SITE ] || ! grep -q "managed by Certbot" $SITE; then
-  sed -e "s/__DOMAIN__/$DOMAIN/g" -e "s/__PORT__/$PORT/g" -e "s#__ROOT__#$APP/current/web#g" "$REL/deploy/nginx.conf" > $SITE
-  ln -sfn $SITE /etc/nginx/sites-enabled/$DOMAIN
-  nginx -t && systemctl reload nginx
-  certbot --nginx -d $DOMAIN --non-interactive --agree-tos --redirect -m vivek@thinkelution.com || echo "CERTBOT FAILED"
-  nginx -t && systemctl reload nginx
-fi
+# nginx: one site file per domain group; HTTP first, certbot adds TLS on the first run.
+for GROUP in "thefreeengine.site www.thefreeengine.site" "freeengine.thinkelution.com"; do
+  MAIN=${GROUP%% *}
+  SITE=/etc/nginx/sites-available/$MAIN
+  if [ ! -f $SITE ] || ! grep -q "managed by Certbot" $SITE; then
+    sed -e "s/__DOMAIN__/$GROUP/g" -e "s/__PORT__/$PORT/g" -e "s#__ROOT__#$APP/current/web#g" "$REL/deploy/nginx.conf" > $SITE
+    ln -sfn $SITE /etc/nginx/sites-enabled/$MAIN
+    nginx -t && systemctl reload nginx
+    certbot --nginx $(printf -- '-d %s ' $GROUP) --non-interactive --agree-tos --redirect -m vivek@thinkelution.com || echo "CERTBOT FAILED for $GROUP"
+    nginx -t && systemctl reload nginx
+  fi
+done
+
+cat > /etc/systemd/system/freeengine-music.service <<EOF
+[Unit]
+Description=The Free Engine music worker (Stable Audio 3 Small, CPU)
+After=network.target freeengine.service
+[Service]
+User=freeengine
+Group=freeengine
+WorkingDirectory=$APP/current/music
+EnvironmentFile=$ENVF
+Environment=TFE_MUSIC_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+ExecStart=$APP/music-venv/bin/python $APP/current/music/worker.py
+Restart=on-failure
+RestartSec=30
+Nice=15
+CPUQuota=150%
+MemoryMax=6G
+MemorySwapMax=0
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=$VAR
+[Install]
+WantedBy=multi-user.target
+EOF
 
 systemctl daemon-reload
-systemctl enable -q freeengine
+systemctl enable -q freeengine freeengine-music
 systemctl restart freeengine
+systemctl restart freeengine-music
 for i in $(seq 1 90); do curl -sf http://127.0.0.1:$PORT/v1/health && break; sleep 2; done; echo
 systemctl is-active freeengine
 

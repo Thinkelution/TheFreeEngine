@@ -266,11 +266,11 @@ const pages = {
         <p class="lead">${S.voices.length || 60} natural voices, free voice cloning, and a simple API. No card, no catch. Just sign up and start talking.</p>
         <div class="ctas">${S.me ? '<a class="btn pri" href="#/studio">Open studio</a>' : '<a class="btn pri" href="#/signup">Get your free API key</a>'}<a class="btn" href="#voices">Hear the voices</a></div>
         ${composerHTML(true)}
-        <div class="stats"><div><b>${S.voices.filter((v) => v.type === "house").length || 60}</b><span>house voices</span></div><div><b>20K</b><span>free chars / day</span></div><div><b>Free</b><span>voice cloning</span></div><div><b>CPU</b><span>green and open</span></div></div>
+        <div class="stats"><div><b>${S.voices.filter((v) => v.type === "house").length || 60}</b><span>house voices</span></div><div><b>5K</b><span>free chars / day</span></div><div><b>Free</b><span>voice cloning</span></div><div><b>♪</b><span>free music</span></div></div>
       </section>
       ${libraryHTML()}
       <section class="wrap"><div class="feat">
-        <div class="card"><div class="ic">${ICON.gift}</div><h3>Free, really</h3><p>20,000 characters a day, 3 voice clones a day. No credit card.</p></div>
+        <div class="card"><div class="ic">${ICON.gift}</div><h3>Free, really</h3><p>5,000 characters a day, 1 free voice clone, 3 music tracks a day. No credit card.</p></div>
         <div class="card"><div class="ic">${ICON.code}</div><h3>Simple API</h3><p>One POST, get an MP3 back. Works from any language.</p></div>
         <div class="card"><div class="ic">${ICON.lock}</div><h3>Your voice, your rules</h3><p>Keep a cloned voice private to your account, or share it with everyone.</p></div>
         <div class="card"><div class="ic">${ICON.bolt}</div><h3>Open models</h3><p>Built on Kyutai Pocket TTS. Every house voice lists its public source.</p></div>
@@ -289,8 +289,10 @@ const pages = {
   -H "Authorization: Bearer $TFE_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"text":"Hello world!","voice":"aria"}' -o hello.mp3</code></pre><a class="btn" href="#/docs">Read the API docs</a></div>
-        <div class="card"><h3>Free plan</h3><table class="tbl"><tr><td>Characters per day</td><td><b>20,000</b></td></tr><tr><td>Characters per request</td><td><b>1,000</b></td></tr>
-          <tr><td>Voice clones per day</td><td><b>3</b></td></tr><tr><td>Saved voices</td><td><b>10</b></td></tr><tr><td>API keys</td><td><b>5</b></td></tr><tr><td>Price</td><td><b class="grad">$0</b></td></tr></table></div></div></section>
+        <div class="card"><h3>Plans</h3><table class="tbl"><tr><th></th><th>Free</th><th>Premium</th></tr>
+          <tr><td>Characters per day</td><td><b>5,000</b></td><td>More</td></tr><tr><td>Characters per request</td><td><b>1,000</b></td><td>More</td></tr>
+          <tr><td>Voice clones</td><td><b>1 per account</b></td><td>More</td></tr><tr><td>Music tracks</td><td><b>3 a day, 30 s</b></td><td>Longer, more</td></tr>
+          <tr><td>Queue</td><td>Shared</td><td>Priority</td></tr><tr><td>Price</td><td><b class="grad">$0</b></td><td><span class="tag warn">Coming soon</span></td></tr></table></div></div></section>
     </div>`;
     wireComposer(); wireLibrary();
   },
@@ -309,7 +311,7 @@ const pages = {
   async clone() {
     if (S.me) await loadMine();
     view.innerHTML = `<div class="wrap page fade"><div class="page-h"><div><h1>Clone a voice <span class="tag ok" style="vertical-align:middle">Free</span></h1>
-      <p class="muted" style="margin:0">Free for everyone. Free clones wait in a queue, and we email you when yours is ready.</p></div></div>
+      <p class="muted" style="margin:0">Every account gets 1 free clone. It waits in a queue, and we email you when it's ready. More clones come with Premium (coming soon).</p></div></div>
       <div class="cols"><div class="card">${S.me ? cloneForm() : `<p>Make a free account to clone a voice.</p><a class="btn pri" href="#/signup">Sign up free</a> <a class="btn" href="#/login">Log in</a>`}</div>
       <div><div class="notice info" style="margin-bottom:14px"><b>How the queue works.</b> Cloning is free, so every request waits its turn.
         It can take some time when many people are cloning. You'll get an email at <b>${esc(S.me?.email || "your address")}</b> when your voice is ready.</div>
@@ -320,7 +322,8 @@ const pages = {
   async docs() {
     const o = location.origin;
     const rows = [["GET", "/v1/voices", "All voices you can use"], ["POST", "/v1/tts", "Text to speech (MP3 or WAV)"], ["POST", "/v1/voices/clone", "Queue a voice clone"],
-      ["GET", "/v1/voices/{id}", "Check a clone's status"], ["GET", "/v1/usage", "Today's use and limits"]];
+      ["GET", "/v1/voices/{id}", "Check a clone's status"], ["POST", "/v1/music", "Queue a music track"], ["GET", "/v1/music/{id}", "Check a track's status"],
+      ["GET", "/v1/music/{id}/audio", "Download a finished track (MP3)"], ["GET", "/v1/usage", "Today's use and limits"]];
     view.innerHTML = `<div class="wrap page fade" style="max-width:900px"><h1>API</h1><p class="muted">Base URL <code>${o}</code>. Send your key as <code>Authorization: Bearer tfe_…</code>. Get a key in the <a href="#/studio">studio</a>.</p>
       <div class="card tblwrap" style="margin:18px 0 30px"><table class="tbl"><tr><th>Method</th><th>Path</th><th>What it does</th></tr>
       ${rows.map(([m, p, d]) => `<tr><td><span class="m ${m.toLowerCase()}">${m}</span></td><td><code>${p}</code></td><td>${d}</td></tr>`).join("")}</table></div>
@@ -342,6 +345,15 @@ const mp3 = await r.blob();</code></pre>
 # → {"voice":"u_…","status":"queued","queue_position":3}
 
 curl ${o}/v1/voices/u_… -H "Authorization: Bearer $TFE_KEY"   # status: queued → processing → ready</code></pre>
+      <p class="muted small">Free plan: 1 voice clone per account. More with Premium (coming soon).</p>
+      <h3>Make music</h3><p class="muted">Free: 3 instrumental tracks a day, up to 30 seconds. Tracks are queued; poll the status or wait for our email.</p>
+<pre><code>curl ${o}/v1/music -H "Authorization: Bearer $TFE_KEY" -H "Content-Type: application/json" \\
+  -d '{"prompt":"Calm lofi beat with soft piano 80 BPM","duration":30}'
+# → {"id":"m_…","status":"queued","queue_position":2}
+
+curl ${o}/v1/music/m_… -H "Authorization: Bearer $TFE_KEY"          # queued → processing → ready
+curl ${o}/v1/music/m_…/audio -H "Authorization: Bearer $TFE_KEY" -o track.mp3</code></pre>
+      <p class="muted small">Music powered by Stability AI.</p>
       <h3>Errors</h3><div class="card tblwrap"><table class="tbl"><tr><th>Code</th><th>Meaning</th></tr><tr><td>401</td><td>Missing or wrong key</td></tr><tr><td>404</td><td>Unknown voice</td></tr>
       <tr><td>413</td><td>Text over 1,000 chars, or file over 10 MB</td></tr><tr><td>429</td><td>Daily limit reached</td></tr></table></div>
       <p class="muted small" style="margin-top:18px">Errors come back as <code>{"error": "…"}</code>. Full schema: <a href="/v1/docs">/v1/docs</a>.</p>
@@ -374,8 +386,8 @@ curl ${o}/v1/voices/u_… -H "Authorization: Bearer $TFE_KEY"   # status: queued
     view.innerHTML = `<div class="wrap page fade"><div class="page-h"><h1>Admin</h1><span class="tag a">Only ${esc(S.me.email)}</span></div>
       <div class="kpis"><div class="card"><b>${st.users}</b><span>accounts (${st.verified} confirmed)</span></div><div class="card"><b>${st.keys}</b><span>active keys</span></div>
         <div class="card"><b>${st.today.chars.toLocaleString()}</b><span>chars today</span></div><div class="card"><b>${st.today.requests}</b><span>requests today</span></div>
-        <div class="card"><b>${st.today.clones}</b><span>clones today</span></div></div>
-      <p class="muted small">Cloned voices: ${esc(vstat)}</p>
+        <div class="card"><b>${st.today.clones}</b><span>clones today</span></div><div class="card"><b>${st.today.music}</b><span>tracks today</span></div></div>
+      <p class="muted small">Cloned voices: ${esc(vstat)} · Music: ${esc(Object.entries(st.music || {}).map(([k, n]) => `${k}: ${n}`).join(" · ") || "none")}</p>
       <div class="tabs"><button class="on" data-t="u">Users</button><button data-t="v">Cloned voices</button><button data-t="d">Last 7 days</button></div>
       <div class="card tblwrap" id="adm"></div></div>`;
     const tabs = {
@@ -386,7 +398,7 @@ curl ${o}/v1/voices/u_… -H "Authorization: Bearer $TFE_KEY"   # status: queued
       v: () => `<table class="tbl"><tr><th>Name</th><th>Owner</th><th>Status</th><th>Visibility</th><th>Created</th><th></th></tr>
         ${vs.voices.map((v) => `<tr><td>${esc(v.name)} <span class="small muted">${esc(v.id)}</span></td><td>${esc(v.email)}</td><td>${statusTag(v)}</td><td>${esc(v.visibility)}${v.hidden ? ' <span class="tag bad">hidden</span>' : ""}</td>
         <td class="small">${esc(v.created.slice(0, 16).replace("T", " "))}</td><td>${v.status === "ready" ? `<button class="btn sm" data-play="${esc(v.id)}">▶</button> <button class="btn sm" data-v="${esc(v.id)}" data-hd="${v.hidden ? 0 : 1}">${v.hidden ? "Unhide" : "Hide"}</button>` : ""}</td></tr>`).join("") || '<tr><td colspan="6" class="muted">No cloned voices yet.</td></tr>'}</table>`,
-      d: () => `<table class="tbl"><tr><th>Day</th><th>Requests</th><th>Chars</th><th>Clones</th></tr>${st.last7.map((d) => `<tr><td>${d.day}</td><td>${d.requests}</td><td>${(d.chars || 0).toLocaleString()}</td><td>${d.clones}</td></tr>`).join("")}</table>`,
+      d: () => `<table class="tbl"><tr><th>Day</th><th>Requests</th><th>Chars</th><th>Clones</th><th>Tracks</th></tr>${st.last7.map((d) => `<tr><td>${d.day}</td><td>${d.requests}</td><td>${(d.chars || 0).toLocaleString()}</td><td>${d.clones}</td><td>${d.music || 0}</td></tr>`).join("")}</table>`,
     };
     const show = (t) => {
       $("#adm").innerHTML = tabs[t]();
@@ -398,6 +410,66 @@ curl ${o}/v1/voices/u_… -H "Authorization: Bearer $TFE_KEY"   # status: queued
     show("u");
   },
 };
+
+/* ------------------------------------------------------------ music */
+const MUSIC_IDEAS = [
+  ["Lofi", "Calm lofi hip hop beat with soft piano, warm vinyl crackle and mellow drums 80 BPM"],
+  ["House", "Upbeat house track with punchy kick, bright synth chords and a big build 124 BPM"],
+  ["Cinematic", "Slow cinematic score with soaring strings, deep brass and gentle piano"],
+  ["Ambient", "Dreamy ambient pad with soft textures and distant bells, relaxing"],
+  ["Rock", "Energetic indie rock instrumental with driving drums and crunchy guitars 140 BPM"],
+  ["Jazz", "Smooth jazz trio with upright bass, brushed drums and warm piano 95 BPM"],
+  ["Indian", "Peaceful Indian classical instrumental with sitar and tabla, evening raga mood"],
+  ["Game", "Cheerful 8-bit chiptune video game music, bouncy and fun 150 BPM"],
+];
+let musicTimer = 0;
+pages.music = async function () {
+  const u = S.me?.usage;
+  view.innerHTML = `<div class="wrap page fade"><div class="page-h"><div><h1>Make music <span class="tag ok" style="vertical-align:middle">Free</span></h1>
+    <p class="muted" style="margin:0">Describe a sound and get an instrumental track. Free tracks wait in a queue, and we email you when yours is ready.</p></div></div>
+    <div class="cols"><div class="card">${S.me ? `<form id="mf"><div class="field"><label for="m-prompt">Describe your music</label>
+      <textarea class="in" id="m-prompt" name="prompt" maxlength="300" minlength="3" required placeholder="e.g. Calm lofi beat with soft piano and rain, 80 BPM"></textarea></div>
+      <div class="filters" style="margin:-4px 0 16px">${MUSIC_IDEAS.map(([k], i) => `<button type="button" class="chip" data-idea="${i}">${k}</button>`).join("")}</div>
+      <div class="field"><label>Length</label><div class="seg">${[10, 20, 30].map((s) => `<label><input type="radio" name="duration" value="${s}"${s === 30 ? " checked" : ""}>${s} s</label>`).join("")}
+        <label class="muted" title="Coming soon with Premium" style="cursor:not-allowed;opacity:.55">60 s+ ⭐</label></div></div>
+      <button class="btn pri" type="submit" style="width:100%">Join the free music queue</button>
+      <p class="small muted" style="text-align:center;margin:10px 0 0">${u.music_limit - u.music} of ${u.music_limit} free tracks left today · instrumental only</p></form>`
+      : `<p>Make a free account to create music.</p><a class="btn pri" href="#/signup">Sign up free</a> <a class="btn" href="#/login">Log in</a>`}</div>
+    <div><div class="notice info" style="margin-bottom:14px"><b>How it works.</b> Music is made on our own free servers, one track at a time.
+      A track can take several minutes, plus your wait in line. We'll email you at <b>${esc(S.me?.email || "your address")}</b> when it's done.
+      ⭐ Premium (coming soon) adds longer tracks and a priority queue.</div>
+      <h3>My tracks</h3><div class="list" id="tracks">${S.me ? "" : '<div class="empty small">Log in to see your tracks.</div>'}</div>
+      <p class="small muted" style="margin-top:14px">Music powered by <a href="https://stability.ai/" rel="noopener">Stability AI</a> (Stable Audio 3 Small, Stability AI Community License).</p></div></div></div>`;
+  if (!S.me) return;
+  for (const b of $$("[data-idea]")) b.onclick = () => { $("#m-prompt").value = MUSIC_IDEAS[+b.dataset.idea][1]; $("#m-prompt").focus(); };
+  $("#mf").onsubmit = (e) => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target));
+    busy($("#mf button[type=submit]"), async () => {
+      const r = await api("POST", "/api/me/music", { prompt: d.prompt, duration: +d.duration });
+      toast(`You're #${r.queue_position} in the music queue. We'll email you when it's ready.`, "ok");
+      S.me = await api("GET", "/api/me"); pages.music();
+    });
+  };
+  renderTracks();
+};
+async function renderTracks() {
+  const el = $("#tracks"); if (!el) return;
+  const { tracks } = await api("GET", "/api/me/music");
+  el.innerHTML = tracks.length ? tracks.map((t) => `<div class="li"><div class="av" data-hue="${hue(t.id)}">♪</div>
+    <div class="grow"><b>${esc(t.prompt.slice(0, 70))}</b> ${statusTag(t, "Making now")}<div class="small muted">${t.duration} s · ${esc(t.created.slice(0, 16).replace("T", " "))}${t.error ? " · failed, not counted" : ""}</div></div>
+    ${t.status === "ready" ? `<button class="btn sm" data-tp="${esc(t.id)}">▶</button><a class="btn sm" href="${t.audio}" download="${esc(t.id)}.mp3">Download</a>` : ""}
+    ${t.status !== "processing" ? `<button class="btn sm danger" data-td="${esc(t.id)}" aria-label="Delete">✕</button>` : ""}</div>`).join("")
+    : '<div class="empty small">No tracks yet. Your music shows up here.</div>';
+  for (const a of $$("[data-hue]", el)) a.style.setProperty("--h", a.dataset.hue);
+  for (const b of $$("[data-tp]", el)) b.onclick = () => { const t = tracks.find((x) => x.id === b.dataset.tp); playTrack({ src: t.audio, title: "My track", sub: t.prompt.slice(0, 60), h: hue(t.id), download: t.audio }); };
+  for (const b of $$("[data-td]", el)) b.onclick = () => { if (confirm("Delete this track?")) busy(b, async () => { await api("DELETE", `/api/me/music/${b.dataset.td}`); renderTracks(); }); };
+  clearTimeout(musicTimer);
+  if (tracks.some((t) => t.status === "queued" || t.status === "processing")) {
+    const ready = tracks.filter((t) => t.status === "ready").length;
+    musicTimer = setTimeout(async () => { if (!$("#tracks")) return; await renderTracks(); if ($$("#tracks [data-tp]").length > ready) toast("Your track is ready! 🎵", "ok"); }, 15000);
+  }
+}
 
 function need(where) {
   sessionStorage.setItem("tfe_next", "#/" + where);
@@ -423,9 +495,13 @@ function authPage(title, sub, fields, cta, fn, alt = "") {
 
 function renderUsage() {
   const u = S.me.usage, pc = (a, b) => Math.min(100, (a / b) * 100).toFixed(1) + "%";
-  $("#usage").innerHTML = `<h3>Today</h3><div class="small muted">Characters · ${u.chars.toLocaleString()} of ${u.chars_limit.toLocaleString()}</div><div class="meter"><i></i></div>
-    <div class="small muted" style="margin-top:12px">Voice clones · ${u.clones} of ${u.clones_limit}</div><div class="meter"><i></i></div><div class="small muted" style="margin-top:10px">Resets at midnight UTC.</div>`;
-  const m = $$("#usage .meter i"); m[0].style.setProperty("--w", pc(u.chars, u.chars_limit)); m[1].style.setProperty("--w", pc(u.clones, u.clones_limit));
+  $("#usage").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Your plan</h3><span class="tag ok">Free</span></div>
+    <div class="small muted" style="margin-top:12px">Characters today · ${u.chars.toLocaleString()} of ${u.chars_limit.toLocaleString()}</div><div class="meter"><i></i></div>
+    <div class="small muted" style="margin-top:12px">Music today · ${u.music} of ${u.music_limit}</div><div class="meter"><i></i></div>
+    <div class="small muted" style="margin-top:12px">Voice clone · ${u.clones_used} of ${u.clones_limit} (per account)</div><div class="meter"><i></i></div>
+    <div class="small muted" style="margin-top:10px">Daily limits reset at midnight UTC.</div>
+    <div class="notice" style="margin-top:14px">⭐ <b>Premium is coming soon:</b> more characters, more clones, longer music, priority queue.</div>`;
+  const m = $$("#usage .meter i"); m[0].style.setProperty("--w", pc(u.chars, u.chars_limit)); m[1].style.setProperty("--w", pc(u.music, u.music_limit)); m[2].style.setProperty("--w", pc(u.clones_used, u.clones_limit));
 }
 async function renderKeys(fresh) {
   const el = $("#keys"); if (!el) return;
@@ -451,7 +527,7 @@ function cloneForm() {
       <span class="small muted" id="vis-help">Private: only your account can use this voice.</span></div>
     <label class="check" style="margin:6px 0 18px"><input type="checkbox" name="consent" value="yes" required> <span>This is my voice, or I have clear permission from the speaker to clone it.</span></label>
     <button class="btn pri" type="submit" style="width:100%">Join the free clone queue</button>
-    <p class="small muted" style="text-align:center;margin:10px 0 0">Free · ${S.me.usage.clones_limit - S.me.usage.clones} left today · we'll email you when it's ready</p></form>`;
+    <p class="small muted" style="text-align:center;margin:10px 0 0">${S.me.usage.clones_used >= S.me.usage.clones_limit ? "You've used your free clone. More clones come with Premium (coming soon)." : "1 free clone per account · we'll email you when it's ready"}</p></form>`;
 }
 function wireCloneForm() {
   const drop = $("#drop"), file = $("#c-file"), picked = $("#c-picked");
@@ -486,8 +562,8 @@ function wireCloneForm() {
     });
   };
 }
-function statusTag(v) {
-  return { queued: `<span class="tag warn"><span class="dot pulse"></span>In queue${v.queue_position ? " · #" + v.queue_position : ""}</span>`, processing: '<span class="tag a"><span class="dot pulse"></span>Cloning now</span>',
+function statusTag(v, busyWord = "Cloning now") {
+  return { queued: `<span class="tag warn"><span class="dot pulse"></span>In queue${v.queue_position ? " · #" + v.queue_position : ""}</span>`, processing: `<span class="tag a"><span class="dot pulse"></span>${busyWord}</span>`,
     ready: '<span class="tag ok">Ready</span>', failed: '<span class="tag bad">Failed</span>' }[v.status] || esc(v.status);
 }
 let mineTimer = 0;
@@ -503,7 +579,7 @@ function renderMine() {
   for (const b of $$("[data-mu]", el)) b.onclick = () => { sessionStorage.setItem("tfe_voice", b.dataset.mu); location.hash = "#/studio"; };
   for (const b of $$("[data-mv]", el)) b.onclick = () => busy(b, async () => { await api("PATCH", `/api/me/voices/${b.dataset.mv}`, { visibility: b.dataset.to }); await loadMine(); renderMine(); loadVoices(); toast(`Now ${b.dataset.to}.`, "ok"); });
   for (const b of $$("[data-md]", el)) b.onclick = () => { if (confirm("Delete this voice for good?")) busy(b, async () => { await api("DELETE", `/api/me/voices/${b.dataset.md}`); await loadMine(); renderMine(); }); };
-  clearTimeout(mineTimer);
+  clearTimeout(mineTimer); clearTimeout(musicTimer);
   if (S.mine.some((v) => v.status === "queued" || v.status === "processing")) mineTimer = setTimeout(async () => { if (!$("#mine")) return; const before = S.mine.filter((v) => v.status === "ready").length; await loadMine(); if (S.mine.filter((v) => v.status === "ready").length > before) toast("Your voice is ready! 🎉", "ok"); renderMine(); }, 10000);
 }
 
