@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Free Engine · Free text-to-speech & voice cloning API</title>
+<meta name="description" content="60 natural voices, free voice cloning and a free text-to-speech API. Sign up, get a key, make speech.">
+<meta name="theme-color" content="#0a0a12">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<header class="top">
+  <a class="logo" href="#/"><span class="mark" aria-hidden="true"><b></b><b></b><b></b><b></b></span>The Free Engine</a>
+  <nav id="nav">
+    <a href="#/" data-r="home">Voices</a>
+    <a href="#/studio" data-r="studio">Studio</a>
+    <a href="#/clone" data-r="clone">Clone</a>
+    <a href="#/docs" data-r="docs">API</a>
+    <a href="#/admin" data-r="admin" class="hide" id="nav-admin">Admin</a>
+  </nav>
+  <div class="who" id="who"></div>
+</header>
+<main id="view" tabindex="-1"></main>
+<footer class="foot">
+  <span>Free speech for everyone. Built on <a href="https://github.com/kyutai-labs/pocket-tts" rel="noopener">Kyutai Pocket TTS</a>.
+  House voices from <a href="https://www.openslr.org/141/" rel="noopener">LibriTTS-R</a> (CC BY 4.0).</span>
+  <a href="https://github.com/Thinkelution/TheFreeEngine" rel="noopener">Source code</a>
+</footer>
+
+<div class="player" id="player" hidden>
+  <button class="pbtn" id="p-play" aria-label="Play or pause"><svg viewBox="0 0 24 24"><path class="i-play" d="M8 5v14l11-7z"/><path class="i-pause" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+  <div class="pinfo"><b id="p-title">-</b><small id="p-sub"></small></div>
+  <canvas id="p-wave" height="44" aria-label="Waveform, click to seek"></canvas>
+  <span class="ptime" id="p-time">0:00</span>
+  <a class="pbtn ghost" id="p-dl" aria-label="Download" download><svg viewBox="0 0 24 24"><path d="M12 3v11m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+  <button class="pbtn ghost" id="p-close" aria-label="Close player"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script src="/app.js" defer></script>
+</body>
+</html>

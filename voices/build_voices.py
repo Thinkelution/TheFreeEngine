@@ -25,8 +25,8 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else "out/voices"
 SPLITS = ["test.clean", "dev.clean", "train.clean.100"]
 CLIPS_PER_SPEAKER = 5
 MIN_SEC, MAX_SEC = 6.0, 14.0
-CANDIDATES = int(os.environ.get("TFE_CANDIDATES", "60"))
-FINAL_PER_GROUP = int(os.environ.get("TFE_FINAL_PER_GROUP", "6"))
+CANDIDATES_PER_GROUP = int(os.environ.get("TFE_CANDIDATES_PER_GROUP", "34"))
+FINAL_PER_GROUP = int(os.environ.get("TFE_FINAL_PER_GROUP", "30"))
 HIGH_PITCH_HZ = 165.0
 TEST_LINES = [
     "Welcome to The Free Engine. This voice is free for everyone to use.",
@@ -34,8 +34,12 @@ TEST_LINES = [
     "until the light flickered on over the dark and quiet sea.",
 ]
 NAMES = {
-    "high": ["aria", "bella", "clara", "daisy", "ella", "fiona", "grace", "hazel"],
-    "low": ["adam", "ben", "carl", "dan", "eric", "felix", "gavin", "henry"],
+    "high": ["aria", "bella", "clara", "daisy", "ella", "fiona", "grace", "hazel", "iris", "june",
+             "kira", "luna", "maya", "nora", "olive", "piper", "quinn", "rose", "sage", "tara",
+             "uma", "vera", "willow", "xena", "yara", "zoe", "amber", "bree", "cora", "dawn"],
+    "low": ["adam", "ben", "carl", "dan", "eric", "felix", "gavin", "henry", "ivan", "jack",
+            "kyle", "leo", "max", "nate", "owen", "paul", "quentin", "reed", "sam", "theo",
+            "upton", "vince", "wade", "xavier", "york", "zane", "alan", "brett", "cole", "drew"],
 }
 
 dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -89,9 +93,17 @@ for spk, cs in clips.items():
     best.append(top)
 best.sort(key=lambda c: -c["mos"])
 print(f"scored {sum(len(v) for v in clips.values())} clips; best source MOS {best[0]['mos']:.2f}", flush=True)
-cands = best[:CANDIDATES]
-for c in cands:
+# Fill both pitch groups evenly, best source quality first.
+cands, counts = [], {"high": 0, "low": 0}
+for c in best:
     c["pitch"] = median_pitch(c["wav"], c["sr"])
+    g = "high" if c["pitch"] >= HIGH_PITCH_HZ else "low"
+    if counts[g] < CANDIDATES_PER_GROUP:
+        counts[g] += 1
+        cands.append(c)
+    if all(v >= CANDIDATES_PER_GROUP for v in counts.values()):
+        break
+print(f"candidates: {counts}", flush=True)
 
 # 3. clone each candidate and score the cloned speech (Pocket TTS on CPU, like production)
 tts = TTSModel.load_model()
@@ -135,6 +147,7 @@ for group in ("high", "low"):
             "pitch": group,
             "pitch_hz": round(r["pitch"]),
             "quality": round(r["clone_mos"], 2),
+            "pace": round(sum(len(t) for t in TEST_LINES) / sum(len(o) / tts.sample_rate for o in r["outs"]), 1),
             "source": {
                 "dataset": "LibriTTS-R",
                 "license": "CC BY 4.0",
