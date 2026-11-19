@@ -217,3 +217,15 @@ kbd { font-family: inherit }
 @media (max-width: 720px) { .hide-sm { display: none } }
 /* #view gets focus on page change (for screen readers); hide that focus ring */
 #view:focus, #view:focus-visible { outline: none }
+/* layout fixes: grid children may shrink, nothing pushes the page wider than the screen */
+html, body { max-width: 100%; overflow-x: clip }
+.wrap { width: 100% }
+.cols > *, .feat > *, .kpis > *, .libhead > * { min-width: 0 }
+section.wrap, .page { min-width: 0 }
+.rail { max-width: 100% }
+.li .grow b, .li .grow .small { overflow-wrap: anywhere }
+/* the composer bar in the Studio card (not only the home hero) */
+.card .bar { display: flex; gap: 10px; align-items: center; padding: 12px 0 0; flex-wrap: wrap }
+.card .bar .grow { flex: 1 }
+.card #tts-text { min-height: 150px }
+#tts-count { white-space: nowrap }
