@@ -221,8 +221,60 @@ function wireComposer() {
   $("#gen").onclick = (e) => generate(e.currentTarget);
   const sel = $("#voice-sel"), saved = sessionStorage.getItem("tfe_voice");
   if (saved && voiceById(saved)) sel.value = saved;
-  sel.addEventListener("change", () => sessionStorage.setItem("tfe_voice", sel.value));
+  sel.addEventListener("change", () => { sessionStorage.setItem("tfe_voice", sel.value); paintPickerBtn(); });
+  wirePicker();
 }
+
+/* ------------------------------------------------------------ voice picker */
+const VP = { f: "all", q: "", i: -1 };
+function pickerList() {
+  const q = VP.q.toLowerCase(), mine = S.mine.filter((v) => v.status === "ready");
+  const all = [...mine.map((v) => ({ ...v, mine: true })), ...S.voices.filter((v) => !mine.some((m) => m.id === v.id))];
+  return all.filter((v) => (VP.f === "all" || (VP.f === "mine" ? v.mine : v.pitch === VP.f)) && (!q || v.name.toLowerCase().includes(q)));
+}
+function voiceSub(v) { return v.mine ? (v.visibility === "public" ? "My voice · public" : "My voice · private") : v.type === "house" ? `${v.pitch === "high" ? "Higher" : "Lower"} · ★ ${v.quality}` : "Community"; }
+function paintPickerBtn() {
+  const v = voiceById($("#voice-sel").value) || S.voices[0]; if (!v) return;
+  const av = $("#vp-av"); av.textContent = v.name[0]; av.style.setProperty("--h", hue(v.id));
+  $("#vp-name").textContent = v.name; $("#vp-sub").textContent = voiceSub({ ...v, mine: S.mine.some((m) => m.id === v.id) });
+}
+function renderPicker() {
+  const list = pickerList(), cur = $("#voice-sel").value, el = $("#vp-list");
+  el.innerHTML = list.length ? list.map((v, i) => `<div class="vp-row${v.id === cur ? " sel" : ""}${i === VP.i ? " act" : ""}" role="option" aria-selected="${v.id === cur}" data-vid="${esc(v.id)}">
+      <span class="av sm" data-hue="${hue(v.id)}">${esc(v.name[0])}</span><span class="vp-name"><b>${esc(v.name)}</b><small>${esc(voiceSub(v))}</small></span>
+      ${v.sample ? `<button type="button" class="vp-play" data-vplay="${esc(v.id)}" aria-label="Hear ${esc(v.name)}">${ICON.play}</button>` : ""}
+      ${v.id === cur ? '<span class="vp-check">✓</span>' : ""}</div>`).join("") : '<div class="empty small">No voices match.</div>';
+  for (const a of $$("[data-hue]", el)) a.style.setProperty("--h", a.dataset.hue);
+}
+function openPicker(open) {
+  const pop = $("#vp-pop"), btn = $("#vp-btn"); if (!pop) return;
+  pop.hidden = !open; btn.setAttribute("aria-expanded", String(open));
+  if (open) { VP.i = -1; renderPicker(); $("#vp-q").value = VP.q; setTimeout(() => $("#vp-q").focus(), 0); $(".vp-row.sel", pop)?.scrollIntoView({ block: "nearest" }); }
+  else preview.audio.pause();
+}
+function choose(id) {
+  const sel = $("#voice-sel"); sel.value = id; sel.dispatchEvent(new Event("change"));
+  openPicker(false); $("#vp-btn").focus();
+}
+function wirePicker() {
+  if (!$("#vp")) return;
+  paintPickerBtn();
+  $("#vp-btn").onclick = () => openPicker($("#vp-pop").hidden);
+  $("#vp-q").oninput = (e) => { VP.q = e.target.value; VP.i = 0; renderPicker(); };
+  for (const b of $$("[data-vpf]")) b.onclick = () => { VP.f = b.dataset.vpf; $$("[data-vpf]").forEach((x) => x.classList.toggle("on", x === b)); VP.i = -1; renderPicker(); };
+  $("#vp-list").onclick = (e) => {
+    const p = e.target.closest("[data-vplay]");
+    if (p) { e.stopPropagation(); const v = voiceById(p.dataset.vplay); preview.audio.src = v.sample; preview.audio.currentTime = 0; preview.audio.play().catch(() => {}); return; }
+    const r = e.target.closest("[data-vid]"); if (r) choose(r.dataset.vid);
+  };
+  $("#vp-pop").onkeydown = (e) => {
+    const n = pickerList().length;
+    if (e.key === "Escape") { openPicker(false); $("#vp-btn").focus(); }
+    else if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); VP.i = Math.max(0, Math.min(n - 1, VP.i + (e.key === "ArrowDown" ? 1 : -1))); renderPicker(); $(".vp-row.act")?.scrollIntoView({ block: "nearest" }); }
+    else if (e.key === "Enter" && VP.i >= 0) { e.preventDefault(); const v = pickerList()[VP.i]; if (v) choose(v.id); }
+  };
+}
+document.addEventListener("pointerdown", (e) => { if ($("#vp-pop") && !$("#vp-pop").hidden && !e.target.closest("#vp")) openPicker(false); });
 
 /* ------------------------------------------------------------ pages */
 function libraryHTML() {
@@ -254,7 +306,11 @@ function wireLibrary() {
 }
 function composerHTML(big) {
   return `<div class="${big ? "try" : "card"}"><textarea class="in" id="tts-text" maxlength="5000" placeholder="Type anything and hear it in any voice…">${big ? "Welcome to The Free Engine. Pick any voice and make it say anything, for free." : ""}</textarea>
-    <div class="bar"><label class="chipsel">${ICON.wave}<select id="voice-sel" aria-label="Voice">${voiceOptions("aria")}</select></label>
+    <div class="bar"><div class="vp" id="vp"><select id="voice-sel" aria-hidden="true" tabindex="-1" hidden>${voiceOptions("aria")}</select>
+      <button type="button" class="vp-btn" id="vp-btn" aria-haspopup="listbox" aria-expanded="false"><span class="av sm" id="vp-av"></span><span class="vp-name"><b id="vp-name"></b><small id="vp-sub"></small></span><svg class="vp-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <div class="vp-pop" id="vp-pop" hidden><label class="search vp-search">${ICON.search}<input class="in" id="vp-q" placeholder="Search voices" autocomplete="off" aria-label="Search voices"></label>
+        <div class="vp-tabs">${["all", "high", "low", "mine"].map((f, i) => `<button type="button" class="chip${i ? "" : " on"}" data-vpf="${f}">${{ all: "All", high: "Higher", low: "Lower", mine: "Mine" }[f]}</button>`).join("")}</div>
+        <div class="vp-list" id="vp-list" role="listbox"></div></div></div>
     <span class="small muted grow" id="tts-count"></span><button class="btn pri" id="gen">${S.me ? "Generate" : "Generate free"} <kbd class="small" style="opacity:.6">⌘↵</kbd></button></div></div>`;
 }
 
