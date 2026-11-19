@@ -81,7 +81,7 @@ const P = { el: $("#player"), audio: new Audio(), peaks: [], hue: 260, hover: -1
 P.audio.preload = "auto";
 function playTrack({ src, title, sub, peaks, h, download, blob }) {
   preview.stop();
-  P.el.hidden = false; $("#p-title").textContent = title; $("#p-sub").textContent = sub || "";
+  P.el.hidden = false; document.body.classList.add("has-player"); $("#p-title").textContent = title; $("#p-sub").textContent = sub || "";
   P.hue = h ?? 260; P.peaks = peaks || fakePeaks(title, 120);
   if (blob && !peaks) peaksFromBlob(blob).then((p) => { P.peaks = p; drawP(); });
   const dl = $("#p-dl"); dl.href = download || src; dl.setAttribute("download", (title || "speech").replace(/\W+/g, "-") + ".mp3");
@@ -94,7 +94,7 @@ P.audio.addEventListener("play", () => P.el.classList.add("on"));
 P.audio.addEventListener("pause", () => P.el.classList.remove("on"));
 P.audio.addEventListener("ended", () => { P.el.classList.remove("on"); drawP(); });
 $("#p-play").onclick = () => (P.audio.paused ? P.audio.play() : P.audio.pause());
-$("#p-close").onclick = () => { P.audio.pause(); P.el.hidden = true; };
+$("#p-close").onclick = () => { P.audio.pause(); P.audio.removeAttribute("src"); P.audio.load(); P.el.hidden = true; document.body.classList.remove("has-player"); };
 const pw = $("#p-wave");
 pw.addEventListener("click", (e) => { if (P.audio.duration) { P.audio.currentTime = (e.offsetX / pw.clientWidth) * P.audio.duration; P.audio.play(); } });
 pw.addEventListener("mousemove", (e) => { P.hover = e.offsetX / pw.clientWidth; drawP(); });
