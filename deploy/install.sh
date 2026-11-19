@@ -86,6 +86,11 @@ EOF
 
 # Waveform bars for the voice cards, then make the release world-readable.
 $APP/venv/bin/python "$REL/deploy/make_peaks.py" "$REL/web/samples" "$REL/web/peaks.json"
+# Version the CSS/JS links so browsers and Cloudflare never serve an old copy after a deploy.
+for f in app.js app.css; do
+  v=$(sha256sum "$REL/web/$f" | cut -c1-10)
+  sed -i "s#/$f\"#/$f?v=$v\"#" "$REL/web/index.html"
+done
 chown -R root:root "$REL" && chmod -R a+rX,go-w "$REL"
 
 ln -sfn "$REL" $APP/current.new && mv -Tf $APP/current.new $APP/current
