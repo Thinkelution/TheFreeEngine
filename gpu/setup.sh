@@ -20,7 +20,7 @@ fi
 
 [ -d /opt/tfe-venv ] || uv venv /opt/tfe-venv --python 3.12
 uv pip install --python /opt/tfe-venv -q \
-  pocket-tts datasets soundfile librosa scipy numpy huggingface_hub
+  pocket-tts datasets soundfile librosa scipy numpy huggingface_hub torchaudio
 /opt/tfe-venv/bin/python - <<'EOF'
 import torch, pocket_tts
 print("torch", torch.__version__, "cuda", torch.cuda.is_available(),

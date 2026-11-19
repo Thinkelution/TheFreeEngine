@@ -5,10 +5,11 @@
 param(
     [Parameter(Mandatory)][ValidateSet('start', 'stop', 'status', 'run', 'pull')][string]$Cmd,
     [string]$Arg,
-    [int]$Timeout = 14400
+    [int]$Timeout = 14400,
+    # thefreeengine-gpu (g6.2xlarge, L4 24 GB, us-east-1b). The older L40S box is i-04f4aa002f1c858b2.
+    [string]$Id = $(if ($env:TFE_GPU_ID) { $env:TFE_GPU_ID } else { 'i-0a0aa9c9241dd51d6' })
 )
 $ErrorActionPreference = 'Stop'
-$Id = 'i-04f4aa002f1c858b2'
 $Region = 'us-east-1'
 $Bucket = 'gpu-worker-132442190413'
 $Prefix = "s3://$Bucket/thefreeengine"
@@ -47,8 +48,11 @@ switch ($Cmd) {
             'set -e',
             'mkdir -p /opt/tfe && cd /opt/tfe',
             "aws s3 sync $Prefix/repo /opt/tfe --only-show-errors --delete --exclude 'out/*'",
-            "bash /opt/tfe/$script 2>&1 | tee /opt/tfe-last.log",
-            'exit ${PIPESTATUS[0]}'
+            'set +e',
+            "bash /opt/tfe/$script > /opt/tfe-last.log 2>&1",
+            'rc=$?',
+            'cat /opt/tfe-last.log',
+            'exit $rc'
         )
         $params = @{ commands = $cmds; executionTimeout = @("$Timeout") } | ConvertTo-Json -Compress
         $f = New-TemporaryFile
