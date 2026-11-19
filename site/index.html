@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TheFreeEngine: free text-to-speech and voice cloning API</title>
+<meta name="description" content="Free, open-source text-to-speech and voice cloning API. Sign up, get a key, make speech.">
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --line:#30363d; --text:#e6edf3; --dim:#8b949e; --accent:#7ee787; --accent2:#79c0ff; }
+  @media (prefers-color-scheme: light) { :root { --bg:#ffffff; --card:#f6f8fa; --line:#d0d7de; --text:#1f2328; --dim:#59636e; --accent:#1a7f37; --accent2:#0969da; } }
+  * { box-sizing:border-box }
+  body { margin:0; font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--text) }
+  main { max-width:960px; margin:0 auto; padding:48px 20px 80px }
+  h1 { font-size:2.6rem; margin:0 0 8px; letter-spacing:-.02em }
+  h1 span { color:var(--accent) }
+  h2 { margin-top:56px; font-size:1.4rem }
+  .lead { color:var(--dim); font-size:1.15rem; margin:0 0 28px }
+  .pills { display:flex; gap:10px; flex-wrap:wrap }
+  .pill { border:1px solid var(--line); border-radius:999px; padding:4px 14px; color:var(--dim); font-size:.9rem }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px }
+  .voice { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px }
+  .voice b { font-size:1.1rem; text-transform:capitalize }
+  .voice small { color:var(--dim); display:block; margin-bottom:8px }
+  audio { width:100%; height:36px }
+  pre { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; overflow:auto; font-size:.88rem }
+  table { border-collapse:collapse; width:100% } td,th { border-bottom:1px solid var(--line); padding:8px; text-align:left }
+  a { color:var(--accent2) }
+  .empty { color:var(--dim); background:var(--card); border:1px dashed var(--line); border-radius:12px; padding:20px }
+  footer { margin-top:64px; color:var(--dim); font-size:.85rem }
+</style>
+</head>
+<body>
+<main>
+  <h1>The<span>Free</span>Engine</h1>
+  <p class="lead">Free text-to-speech and voice cloning API, built on open models. Get a key and make speech.</p>
+  <div class="pills">
+    <span class="pill">Text to speech</span><span class="pill">Voice cloning</span>
+    <span class="pill">Music (soon)</span><span class="pill">Open source</span>
+  </div>
+
+  <h2>Voices</h2>
+  <div id="voices" class="grid"><div class="empty">Loading voices…</div></div>
+
+  <h2>Free plan</h2>
+  <table>
+    <tr><th>Limit</th><th>Free</th></tr>
+    <tr><td>Characters per day</td><td>20,000</td></tr>
+    <tr><td>Characters per request</td><td>1,000</td></tr>
+    <tr><td>Voice clones per day</td><td>3</td></tr>
+    <tr><td>Saved cloned voices</td><td>10</td></tr>
+  </table>
+
+  <h2>Quick start</h2>
+<pre>curl https://API_HOST/v1/tts \
+  -H "Authorization: Bearer $TFE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello world!", "voice": "aria", "format": "mp3"}' \
+  -o hello.mp3</pre>
+  <p>Clone a voice you have permission to use:</p>
+<pre>curl https://API_HOST/v1/voices/clone \
+  -H "Authorization: Bearer $TFE_KEY" \
+  -F file=@my_voice.wav -F name="My voice" -F consent=yes</pre>
+
+  <h2>Rules</h2>
+  <p>Only clone a voice with the speaker's clear permission. Never use it to trick or harm people.
+     Keys that break this are shut off.</p>
+
+  <footer>
+    Speech model: <a href="https://github.com/kyutai-labs/pocket-tts">Kyutai Pocket TTS</a>.
+    House voices are built from <a href="https://www.openslr.org/141/">LibriTTS-R</a> (CC BY 4.0) recordings.
+    Code: <a href="https://github.com/Thinkelution/TheFreeEngine">github.com/Thinkelution/TheFreeEngine</a>.
+  </footer>
+</main>
+<script>
+fetch("voices.json").then(r => r.ok ? r.json() : {voices: []}).then(d => {
+  const el = document.getElementById("voices");
+  if (!d.voices || !d.voices.length) { el.innerHTML = '<div class="empty">New voices are being built. Check back soon.</div>'; return; }
+  el.innerHTML = "";
+  for (const v of d.voices) {
+    const c = document.createElement("div"); c.className = "voice";
+    c.innerHTML = `<b></b><small></small><audio controls preload="none"></audio>`;
+    c.querySelector("b").textContent = v.id;
+    c.querySelector("small").textContent = `${v.pitch === "high" ? "Higher" : "Lower"} voice · quality ${v.quality}/5`;
+    c.querySelector("audio").src = `samples/${encodeURIComponent(v.id)}.mp3`;
+    el.appendChild(c);
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+pocket-tts
+fastapi
+uvicorn[standard]
+python-multipart
+scipy
+numpy
