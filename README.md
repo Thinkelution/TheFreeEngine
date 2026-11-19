@@ -2,7 +2,7 @@
 
 Free, open-source speech APIs: text-to-speech, voice cloning and (later) music.
 
-Website: https://thinkelution.github.io/TheFreeEngine/
+Website and API: https://freeengine.thinkelution.com (served from the 208 server)
 
 ## What runs where
 
@@ -10,7 +10,7 @@ Website: https://thinkelution.github.io/TheFreeEngine/
 |---|---|---|
 | API server (`server/`) | CPU box (`208.110.72.147`) | Pocket TTS runs on CPU |
 | Voice building / training (`gpu/`, `voices/`) | AWS L40S `gpu-worker`, on demand | Scoring and fine-tuning need a GPU |
-| Website (`site/`) | GitHub Pages, branch `gh-pages` | Free static hosting |
+| Website (`web/`) | Same box, nginx | One domain for site and API |
 
 ## Models
 
@@ -31,7 +31,7 @@ scores the cloned speech again, and keeps the best. Output:
 
 - `voices/<id>.safetensors`: voice embedding, loads fast, no gated weights needed
 - `voices/catalog.json`: names, sources, scores
-- `site/samples/<id>.mp3`: demo clips
+- `web/samples/<id>.mp3`: demo clips
 
 See `voices/ATTRIBUTION.md`.
 
@@ -73,3 +73,11 @@ python3 -m venv .venv
 | GET | `/v1/usage` | none | today's use and limits |
 
 Send the key as `Authorization: Bearer <key>`.
+
+## Deploy
+
+```powershell
+./deploy/deploy.ps1              # package and install on 208 (systemd: freeengine, nginx, certbot)
+./deploy/deploy.ps1 -SetMailKey  # also (re)write the MailerSend key from F:/work/keys.txt
+```n
+Secrets live in `/etc/freeengine.env` (mode 600). Data lives in `/var/lib/freeengine`. Admin: `TFE_ADMIN_EMAILS`.
