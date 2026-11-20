@@ -4,7 +4,17 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const view = $("#view");
-const S = { me: null, voices: [], peaks: {}, mine: [], unlocked: false, lib: { f: "all", q: "", grid: false } };
+const S = { me: null, voices: [], peaks: {}, mine: [], unlocked: false, mood: sessionStorage.getItem("tfe_mood") || "neutral",
+  lib: { f: "all", q: "", grid: false, mood: "any", gender: "any", tone: "any" } };
+const MOOD_META = { neutral: ["Neutral", "😐"], happy: ["Happy", "😊"], sad: ["Sad", "😢"], excited: ["Excited", "🤩"], calm: ["Calm", "😌"], serious: ["Serious", "🧐"] };
+const MOOD_LIST = Object.keys(MOOD_META);
+const moodLabel = (m) => (MOOD_META[m] || [m])[0];
+const moodIcon = (m) => (MOOD_META[m] || ["", "🎭"])[1];
+const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : "");
+function voiceDesc(v) {
+  if (v.type !== "house") return v.mine ? "My voice" : "Community voice";
+  return [v.gender === "f" ? "Female" : v.gender === "m" ? "Male" : "", cap(v.tone), v.pitch_band ? cap(v.pitch_band) + " pitch" : ""].filter(Boolean).join(" · ");
+}
 const ICON = {
   play: '<svg viewBox="0 0 24 24"><path class="i-play" d="M8 5v14l11-7z"/><path class="i-pause" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
@@ -107,12 +117,12 @@ addEventListener("keydown", (e) => {
 /* ------------------------------------------------------------ hover preview */
 const preview = {
   audio: new Audio(), card: null, timer: 0, raf: 0,
-  start(card) {
+  start(card, src) {
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
       if (!S.unlocked) { $("#hover-hint")?.classList.add("flash"); return; }
       this.stop(); this.card = card; card.classList.add("playing");
-      this.audio.src = card.dataset.src; this.audio.currentTime = 0;
+      this.audio.src = src || card.dataset.src; this.audio.currentTime = 0;
       this.audio.play().catch(() => { card.classList.remove("playing"); });
       const tick = () => { if (this.card !== card) return; paintCard(card, this.audio.duration ? this.audio.currentTime / this.audio.duration : 0); this.raf = requestAnimationFrame(tick); };
       tick();
@@ -133,11 +143,10 @@ const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
 function voiceById(id) { return S.voices.find((v) => v.id === id) || S.mine.find((v) => v.id === id); }
 function paintCard(card, prog) { const v = voiceById(card.dataset.id); drawWave($("canvas", card), S.peaks[card.dataset.id] || fakePeaks(card.dataset.id), prog, hue(card.dataset.id)); }
 function voiceCard(v) {
-  const h = hue(v.id);
-  const sub = v.type === "house" ? `${v.pitch === "high" ? "Higher" : "Lower"} voice · ${v.pace ? v.pace + " chars/s" : "natural pace"}` : "Community voice";
-  const tags = v.type === "house"
-    ? `<span class="tag a">★ ${esc(v.quality)}</span><span class="tag">${v.pitch === "high" ? "Bright" : "Deep"}</span>`
-    : `<span class="tag ok">Community</span>`;
+  const h = hue(v.id), moods = v.moods || ["neutral"];
+  const sub = voiceDesc(v);
+  const chips = moods.map((m) => `<button type="button" class="mchip" data-mood="${esc(m)}" data-msrc="${esc((v.samples || {})[m] || v.sample)}" title="Hear ${esc(moodLabel(m))}">${moodIcon(m)} ${esc(moodLabel(m))}</button>`).join("");
+  const tags = (v.type === "house" ? `<span class="tag a">★ ${esc(v.quality)}</span>` : `<span class="tag ok">Community</span>`) + chips;
   return `<div class="vc" tabindex="0" role="button" aria-label="Play ${esc(v.name)}" data-id="${esc(v.id)}" data-src="${esc(v.sample)}" data-h="${h}">
     <div class="row"><div class="av">${esc(v.name[0] || "?")}</div><div class="meta"><b>${esc(v.name)}</b><small>${esc(sub)}</small></div>
     <span class="pl">${ICON.play}</span></div><canvas></canvas><div class="tags">${tags}</div>
@@ -150,20 +159,39 @@ function wireCards(root) {
     if (canHover) { c.addEventListener("mouseenter", () => preview.start(c)); c.addEventListener("mouseleave", () => preview.stop()); }
     c.addEventListener("focus", () => canHover && S.unlocked && preview.start(c));
     c.addEventListener("blur", () => preview.stop());
+    for (const m of $$(".mchip", c)) {
+      if (canHover) m.addEventListener("mouseenter", () => { c.dataset.pick = m.dataset.mood; preview.start(c, m.dataset.msrc); });
+      m.addEventListener("click", (e) => {
+        e.stopPropagation(); c.dataset.pick = m.dataset.mood; const v = voiceById(c.dataset.id);
+        $$(".mchip", c).forEach((x) => x.classList.toggle("on", x === m));
+        playTrack({ src: m.dataset.msrc, title: `${v.name} · ${moodLabel(m.dataset.mood)}`, sub: voiceDesc(v), h: +c.dataset.h });
+      });
+    }
     c.addEventListener("click", (e) => {
       const use = e.target.closest("[data-use]");
-      if (use) { e.stopPropagation(); pickVoice(use.dataset.use); return; }
+      if (use) { e.stopPropagation(); pickVoice(use.dataset.use, c.dataset.pick); return; }
       const v = voiceById(c.dataset.id);
       playTrack({ src: c.dataset.src, title: v.name, sub: v.type === "house" ? "House voice sample" : "Community voice", peaks: S.peaks[v.id], h: +c.dataset.h });
     });
     c.addEventListener("keydown", (e) => { if (e.key === "Enter") c.click(); });
   }
 }
-function pickVoice(id) {
+function setMood(m) { S.mood = m || "neutral"; sessionStorage.setItem("tfe_mood", S.mood); renderMoodRow(); }
+function pickVoice(id, mood) {
   sessionStorage.setItem("tfe_voice", id);
+  if (mood) setMood(mood);
   const sel = $("#voice-sel");
-  if (sel) { sel.value = id; sel.dispatchEvent(new Event("change")); $("#tts-text")?.focus(); toast(`Voice set to ${voiceById(id)?.name || id}`); window.scrollTo({ top: 0 }); }
+  if (sel) { sel.value = id; sel.dispatchEvent(new Event("change")); $("#tts-text")?.focus(); toast(`Voice set to ${voiceById(id)?.name || id}${mood && mood !== "neutral" ? " · " + moodLabel(mood) : ""}`); window.scrollTo({ top: 0 }); }
   else location.hash = "#/studio";
+}
+function renderMoodRow() {
+  const el = $("#mood-row"); if (!el) return;
+  const v = voiceById($("#voice-sel")?.value), have = v?.moods || ["neutral"];
+  el.innerHTML = `<span class="small muted">Mood</span>` + MOOD_LIST.map((m) => {
+    const ok = have.includes(m);
+    return `<button type="button" class="mchip${m === S.mood ? " on" : ""}${ok ? "" : " off"}" data-setmood="${m}" ${ok ? "" : `title="${esc(v?.name || "This voice")} has no ${moodLabel(m)} version yet"`}>${moodIcon(m)} ${moodLabel(m)}</button>`;
+  }).join("") + (have.includes(S.mood) ? "" : `<span class="small" style="color:var(--warn)">${esc(v?.name || "")} has no ${moodLabel(S.mood)} version. Neutral will be used.</span>`);
+  for (const b of $$("[data-setmood]", el)) b.onclick = () => setMood(b.dataset.setmood);
 }
 
 /* ------------------------------------------------------------ data */
@@ -196,10 +224,11 @@ async function generate(btn) {
   if (!S.me) { sessionStorage.setItem("tfe_draft", text); location.hash = "#/signup"; return toast("Make a free account to generate speech."); }
   await busy(btn, async () => {
     const t0 = performance.now();
-    const blob = await api("POST", "/v1/tts", { text, voice, format: "mp3" });
-    const url = URL.createObjectURL(blob), v = voiceById(voice);
-    playTrack({ src: url, title: v?.name || voice, sub: text.slice(0, 60), blob, h: hue(voice), download: url });
-    addHistory({ url, blob, voice: v?.name || voice, text, secs: ((performance.now() - t0) / 1000).toFixed(1) });
+    const v0 = voiceById(voice), mood = (v0?.moods || ["neutral"]).includes(S.mood) ? S.mood : undefined;
+    const blob = await api("POST", "/v1/tts", { text, voice, mood, format: "mp3" });
+    const url = URL.createObjectURL(blob), v = voiceById(voice), name = (v?.name || voice) + (mood && mood !== "neutral" ? ` · ${moodLabel(mood)}` : "");
+    playTrack({ src: url, title: name, sub: text.slice(0, 60), blob, h: hue(voice), download: url });
+    addHistory({ url, blob, voice: name, text, secs: ((performance.now() - t0) / 1000).toFixed(1) });
     S.me && api("GET", "/api/me").then((m) => { S.me = m; $("#usage") && renderUsage(); }).catch(() => {});
   });
 }
@@ -221,8 +250,8 @@ function wireComposer() {
   $("#gen").onclick = (e) => generate(e.currentTarget);
   const sel = $("#voice-sel"), saved = sessionStorage.getItem("tfe_voice");
   if (saved && voiceById(saved)) sel.value = saved;
-  sel.addEventListener("change", () => { sessionStorage.setItem("tfe_voice", sel.value); paintPickerBtn(); });
-  wirePicker();
+  sel.addEventListener("change", () => { sessionStorage.setItem("tfe_voice", sel.value); paintPickerBtn(); renderMoodRow(); });
+  wirePicker(); renderMoodRow();
 }
 
 /* ------------------------------------------------------------ voice picker */
@@ -230,9 +259,14 @@ const VP = { f: "all", q: "", i: -1 };
 function pickerList() {
   const q = VP.q.toLowerCase(), mine = S.mine.filter((v) => v.status === "ready");
   const all = [...mine.map((v) => ({ ...v, mine: true })), ...S.voices.filter((v) => !mine.some((m) => m.id === v.id))];
-  return all.filter((v) => (VP.f === "all" || (VP.f === "mine" ? v.mine : v.pitch === VP.f)) && (!q || v.name.toLowerCase().includes(q)));
+  return all.filter((v) => (VP.f === "all" || (VP.f === "mine" ? v.mine : MOOD_META[VP.f] ? (v.moods || []).includes(VP.f) : v.gender === VP.f))
+    && (!q || v.name.toLowerCase().includes(q) || voiceDesc(v).toLowerCase().includes(q)));
 }
-function voiceSub(v) { return v.mine ? (v.visibility === "public" ? "My voice · public" : "My voice · private") : v.type === "house" ? `${v.pitch === "high" ? "Higher" : "Lower"} · ★ ${v.quality}` : "Community"; }
+function voiceSub(v) {
+  const n = (v.moods || ["neutral"]).length;
+  const moods = n > 1 ? ` · ${(v.moods || []).filter((m) => m !== "neutral").map(moodIcon).join("")}` : "";
+  return (v.mine ? (v.visibility === "public" ? "My voice · public" : "My voice · private") : voiceDesc(v)) + moods;
+}
 function paintPickerBtn() {
   const v = voiceById($("#voice-sel").value) || S.voices[0]; if (!v) return;
   const av = $("#vp-av"); av.textContent = v.name[0]; av.style.setProperty("--h", hue(v.id));
@@ -278,26 +312,38 @@ document.addEventListener("pointerdown", (e) => { if ($("#vp-pop") && !$("#vp-po
 
 /* ------------------------------------------------------------ pages */
 function libraryHTML() {
+  const sel = (id, label, cur, opts) => `<label class="fsel"><span>${label}</span><select id="${id}" class="in">${opts.map(([v, t]) => `<option value="${v}"${v === cur ? " selected" : ""}>${t}</option>`).join("")}</select></label>`;
+  const nMood = S.voices.reduce((n, v) => n + (v.moods || []).length - 1, 0);
   return `<section class="wrap" id="voices">
-    <div class="libhead"><div><h2>Pick a voice</h2><p class="muted" style="margin:0">${S.voices.length} voices, all free.
-      ${canHover ? '<span class="hint" id="hover-hint">· Click once anywhere, then hover a card to hear it</span>' : "Tap a card to hear it."}</p></div>
+    <div class="libhead"><div><h2>Pick a voice</h2><p class="muted" style="margin:0">${S.voices.length} voices${nMood ? ` · ${nMood} mood versions` : ""}, all free.
+      ${canHover ? '<span class="hint" id="hover-hint">· Click once anywhere, then hover a card or a mood to hear it</span>' : "Tap a card or a mood to hear it."}</p></div>
       <div class="filters">
-        ${["all", "high", "low", "community"].map((f) => `<button class="chip${S.lib.f === f ? " on" : ""}" data-f="${f}">${{ all: "All", high: "Higher", low: "Lower", community: "Community" }[f]}</button>`).join("")}
+        ${["all", "f", "m", "community"].map((f) => `<button class="chip${S.lib.f === f ? " on" : ""}" data-f="${f}">${{ all: "All", f: "Female", m: "Male", community: "Community" }[f]}</button>`).join("")}
         <label class="search">${ICON.search}<input class="in" id="lib-q" placeholder="Search voices" value="${esc(S.lib.q)}" aria-label="Search voices"></label>
         <button class="btn sm" id="lib-grid">${S.lib.grid ? "Scroll view" : "Show all"}</button>
         <span class="railnav${S.lib.grid ? " hide" : ""}"><button class="btn sm" id="rl" aria-label="Scroll left">←</button><button class="btn sm" id="rr" aria-label="Scroll right">→</button></span>
       </div></div>
+    <div class="filters libmoods">${["any", ...MOOD_LIST.slice(1)].map((m) => `<button class="chip${S.lib.mood === m ? " on" : ""}" data-lm="${m}">${m === "any" ? "Any mood" : moodIcon(m) + " " + moodLabel(m)}</button>`).join("")}
+      ${sel("lib-tone", "Tone", S.lib.tone, [["any", "Any"], ["warm", "Warm"], ["bright", "Bright"], ["deep", "Deep"], ["smooth", "Smooth"]])}
+      ${sel("lib-pitch", "Pitch", S.lib.pitch || "any", [["any", "Any"], ["high", "High"], ["mid", "Mid"], ["low", "Low"]])}</div>
     <div class="rail${S.lib.grid ? " grid" : ""}" id="rail"></div></section>`;
 }
 function renderRail() {
   const rail = $("#rail"); if (!rail) return;
-  const q = S.lib.q.toLowerCase();
-  const list = S.voices.filter((v) => (S.lib.f === "all" || (S.lib.f === "community" ? v.type === "community" : v.pitch === S.lib.f)) && (!q || v.name.toLowerCase().includes(q)));
-  rail.innerHTML = list.length ? list.map(voiceCard).join("") : `<div class="empty">${S.lib.f === "community" ? "No public community voices yet. Clone yours and share it!" : "No voices match."}</div>`;
+  const q = S.lib.q.toLowerCase(), L = S.lib;
+  const list = S.voices.filter((v) => (L.f === "all" || (L.f === "community" ? v.type === "community" : v.gender === L.f))
+    && (L.mood === "any" || (v.moods || []).includes(L.mood)) && (L.tone === "any" || v.tone === L.tone)
+    && (!L.pitch || L.pitch === "any" || v.pitch_band === L.pitch)
+    && (!q || v.name.toLowerCase().includes(q) || voiceDesc(v).toLowerCase().includes(q)));
+  rail.innerHTML = list.length ? list.map(voiceCard).join("") : `<div class="empty">${L.f === "community" ? "No public community voices yet. Clone yours and share it!" : "No voices match."}</div>`;
   wireCards(rail);
+  if (L.mood !== "any") for (const c of $$(".vc", rail)) { const m = $(`.mchip[data-mood="${L.mood}"]`, c); if (m) { m.classList.add("on"); c.dataset.pick = L.mood; c.dataset.src = m.dataset.msrc; } }
 }
 function wireLibrary() {
   for (const c of $$("[data-f]")) c.onclick = () => { S.lib.f = c.dataset.f; $$("[data-f]").forEach((x) => x.classList.toggle("on", x === c)); renderRail(); };
+  for (const c of $$("[data-lm]")) c.onclick = () => { S.lib.mood = c.dataset.lm; $$("[data-lm]").forEach((x) => x.classList.toggle("on", x === c)); renderRail(); };
+  $("#lib-tone").onchange = (e) => { S.lib.tone = e.target.value; renderRail(); };
+  $("#lib-pitch").onchange = (e) => { S.lib.pitch = e.target.value; renderRail(); };
   $("#lib-q").oninput = (e) => { S.lib.q = e.target.value; renderRail(); };
   $("#lib-grid").onclick = (e) => { S.lib.grid = !S.lib.grid; $("#rail").classList.toggle("grid", S.lib.grid); $(".railnav").classList.toggle("hide", S.lib.grid); e.target.textContent = S.lib.grid ? "Scroll view" : "Show all"; renderRail(); };
   $("#rl").onclick = () => $("#rail").scrollBy({ left: -600, behavior: "smooth" });
@@ -309,9 +355,11 @@ function composerHTML(big) {
     <div class="bar"><div class="vp" id="vp"><select id="voice-sel" aria-hidden="true" tabindex="-1" hidden>${voiceOptions("aria")}</select>
       <button type="button" class="vp-btn" id="vp-btn" aria-haspopup="listbox" aria-expanded="false"><span class="av sm" id="vp-av"></span><span class="vp-name"><b id="vp-name"></b><small id="vp-sub"></small></span><svg class="vp-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       <div class="vp-pop" id="vp-pop" hidden><label class="search vp-search">${ICON.search}<input class="in" id="vp-q" placeholder="Search voices" autocomplete="off" aria-label="Search voices"></label>
-        <div class="vp-tabs">${["all", "high", "low", "mine"].map((f, i) => `<button type="button" class="chip${i ? "" : " on"}" data-vpf="${f}">${{ all: "All", high: "Higher", low: "Lower", mine: "Mine" }[f]}</button>`).join("")}</div>
+        <div class="vp-tabs">${["all", "f", "m", "mine"].map((f, i) => `<button type="button" class="chip${i ? "" : " on"}" data-vpf="${f}">${{ all: "All", f: "Female", m: "Male", mine: "Mine" }[f]}</button>`).join("")}</div>
+        <div class="vp-tabs" style="margin-top:0">${MOOD_LIST.slice(1).map((m) => `<button type="button" class="chip" data-vpf="${m}" title="Voices with a ${moodLabel(m)} version">${moodIcon(m)} ${moodLabel(m)}</button>`).join("")}</div>
         <div class="vp-list" id="vp-list" role="listbox"></div></div></div>
-    <span class="small muted grow" id="tts-count"></span><button class="btn pri" id="gen">${S.me ? "Generate" : "Generate free"} <kbd class="small" style="opacity:.6">⌘↵</kbd></button></div></div>`;
+    <span class="small muted grow" id="tts-count"></span><button class="btn pri" id="gen">${S.me ? "Generate" : "Generate free"} <kbd class="small" style="opacity:.6">⌘↵</kbd></button></div>
+    <div class="moodrow" id="mood-row"></div></div>`;
 }
 
 const pages = {
@@ -378,7 +426,7 @@ const pages = {
   async docs() {
     const o = location.origin;
     const rows = [["GET", "/v1/voices", "All voices you can use"], ["POST", "/v1/tts", "Text to speech (MP3 or WAV)"], ["POST", "/v1/voices/clone", "Queue a voice clone"],
-      ["GET", "/v1/voices/{id}", "Check a clone's status"], ["POST", "/v1/music", "Queue a music track"], ["GET", "/v1/music/{id}", "Check a track's status"],
+      ["GET", "/v1/voices/{id}", "Check a clone's status"], ["POST", "/v1/voices/{id}/moods", "Add a mood clip to your voice"], ["POST", "/v1/music", "Queue a music track"], ["GET", "/v1/music/{id}", "Check a track's status"],
       ["GET", "/v1/music/{id}/audio", "Download a finished track (MP3)"], ["GET", "/v1/usage", "Today's use and limits"]];
     view.innerHTML = `<div class="wrap page fade" style="max-width:900px"><h1>API</h1><p class="muted">Base URL <code>${o}</code>. Send your key as <code>Authorization: Bearer tfe_…</code>. Get a key in the <a href="#/studio">studio</a>.</p>
       <div class="card tblwrap" style="margin:18px 0 30px"><table class="tbl"><tr><th>Method</th><th>Path</th><th>What it does</th></tr>
@@ -402,6 +450,19 @@ const mp3 = await r.blob();</code></pre>
 
 curl ${o}/v1/voices/u_… -H "Authorization: Bearer $TFE_KEY"   # status: queued → processing → ready</code></pre>
       <p class="muted small">Free plan: 1 voice clone per account. More with Premium (coming soon).</p>
+      <h3>Moods</h3><p class="muted">Most voices come in several moods: <code>neutral</code>, <code>happy</code>, <code>sad</code>, <code>excited</code>, <code>calm</code>, <code>serious</code>.
+      Each voice in <code>/v1/voices</code> lists its <code>moods</code>, plus <code>gender</code>, <code>tone</code> (warm, bright, deep, smooth), <code>pitch_band</code> and <code>pace_band</code>.
+      Ask for a mood with <code>"mood"</code>. If that voice has no such version, you get its base mood, and the <code>X-TFE-Mood</code> header says which mood was used.</p>
+<pre><code>curl ${o}/v1/tts -H "Authorization: Bearer $TFE_KEY" -H "Content-Type: application/json" \\
+  -d '{"text":"We won the game!","voice":"maya","mood":"excited"}' -o excited.mp3
+
+curl "${o}/v1/voices?mood=sad&gender=f&tone=warm" -H "Authorization: Bearer $TFE_KEY"   # filter voices</code></pre>
+      <p class="muted">Your cloned voice can have moods too. Tag the first recording with <code>mood</code>, then add up to 4 more mood clips for free.
+      They go through the same queue, and we email you when each is ready.</p>
+<pre><code>curl ${o}/v1/voices/clone -H "Authorization: Bearer $TFE_KEY" \\
+  -F file=@calm.wav -F name="My voice" -F mood=calm -F consent=yes
+curl ${o}/v1/voices/u_…/moods -H "Authorization: Bearer $TFE_KEY" \\
+  -F file=@happy.wav -F mood=happy -F consent=yes</code></pre>
       <h3>Make music</h3><p class="muted">Free: 3 instrumental tracks a day, up to 30 seconds. Tracks are queued; poll the status or wait for our email.</p>
 <pre><code>curl ${o}/v1/music -H "Authorization: Bearer $TFE_KEY" -H "Content-Type: application/json" \\
   -d '{"prompt":"Calm lofi beat with soft piano 80 BPM","duration":30}'
@@ -579,6 +640,8 @@ function cloneForm() {
       <input type="file" id="c-file" accept="audio/*" hidden></div>
       <div class="rec"><span class="small muted">or</span><button type="button" class="btn sm" id="rec">${ICON.mic.replace("<svg", '<svg width="16" height="16"')} Record now</button><span class="small muted" id="rec-st"></span></div>
       <div class="small" id="c-picked" style="margin-top:8px"></div></div>
+    <div class="field"><label>Mood of this recording</label>${moodSeg("mood", "neutral")}
+      <span class="small muted">Pick how the recording sounds. You can add up to 4 more moods to this voice later, free.</span></div>
     <div class="field"><label>Who can use it?</label><div class="seg"><label><input type="radio" name="visibility" value="private" checked>🔒 Private</label><label><input type="radio" name="visibility" value="public">🌍 Public</label></div>
       <span class="small muted" id="vis-help">Private: only your account can use this voice.</span></div>
     <label class="check" style="margin:6px 0 18px"><input type="checkbox" name="consent" value="yes" required> <span>This is my voice, or I have clear permission from the speaker to clone it.</span></label>
@@ -623,20 +686,71 @@ function statusTag(v, busyWord = "Cloning now") {
     ready: '<span class="tag ok">Ready</span>', failed: '<span class="tag bad">Failed</span>' }[v.status] || esc(v.status);
 }
 let mineTimer = 0;
+function moodSeg(name, cur, exclude = []) {
+  return `<div class="seg moodseg">${MOOD_LIST.filter((m) => !exclude.includes(m)).map((m, i) => `<label><input type="radio" name="${name}" value="${m}"${m === cur || (!cur && i === 0) ? " checked" : ""}>${moodIcon(m)} ${moodLabel(m)}</label>`).join("")}</div>`;
+}
+function mineMoods(v) {
+  const ready = (v.moods || []).map((m) => `<button type="button" class="mchip" data-mmp="${esc(v.id)}" data-m="${m}">${moodIcon(m)} ${moodLabel(m)}${m !== v.mood ? ` <span data-mdel="${esc(v.id)}" data-m="${m}" title="Remove this mood" class="x">✕</span>` : ""}</button>`).join("");
+  const jobs = (v.mood_jobs || []).filter((j) => j.status !== "ready").map((j) => `<span class="tag ${j.status === "failed" ? "bad" : "warn"}">${moodIcon(j.mood)} ${moodLabel(j.mood)} · ${j.status === "failed" ? "failed" : j.status === "processing" ? "making now" : "in queue"}</span>`).join("");
+  const extra = (v.mood_jobs || []).filter((j) => j.status !== "failed").length;
+  const add = extra < 4 ? `<button type="button" class="btn sm" data-addmood="${esc(v.id)}">＋ Add a mood</button>` : "";
+  return `<div class="minemoods">${ready}${jobs}${add}</div><div class="addmood" id="am-${esc(v.id)}" hidden></div>`;
+}
+function openAddMood(v) {
+  const box = $(`#am-${v.id}`); if (!box) return;
+  if (!box.hidden) { box.hidden = true; return; }
+  const taken = [...(v.moods || []), ...(v.mood_jobs || []).filter((j) => j.status !== "failed").map((j) => j.mood)];
+  box.hidden = false;
+  box.innerHTML = `<form class="card" style="padding:14px"><b>Add a mood to ${esc(v.name)}</b>
+    <p class="small muted" style="margin:4px 0 10px">Record 10–20 s of the same person speaking in that mood. Free, and it doesn't use up your clone.</p>
+    ${moodSeg("mood", null, taken)}
+    <div class="rec" style="justify-content:flex-start"><label class="btn sm">Pick a file<input type="file" accept="audio/*" hidden></label><button type="button" class="btn sm" data-r>${ICON.mic.replace("<svg", '<svg width="16" height="16"')} Record</button><span class="small muted" data-st></span></div>
+    <label class="check" style="margin:10px 0"><input type="checkbox" name="consent" value="yes" required> <span>I have the speaker's permission.</span></label>
+    <button class="btn pri sm" type="submit">Join the free mood queue</button></form>`;
+  const f = $("form", box), st = $("[data-st]", box); let blob = null, mr = null, chunks = [], t0 = 0;
+  $("input[type=file]", box).onchange = (e) => { blob = e.target.files[0]; st.textContent = blob ? "✓ " + blob.name : ""; };
+  $("[data-r]", box).onclick = async (e) => {
+    if (mr) return mr.stop();
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      mr = new MediaRecorder(s); chunks = []; mr.ondataavailable = (x) => chunks.push(x.data);
+      mr.onstop = () => { s.getTracks().forEach((t) => t.stop()); blob = new Blob(chunks, { type: mr.mimeType || "audio/webm" }); mr = null; e.target.innerHTML = "Record again"; st.textContent = `✓ Recording, ${((Date.now() - t0) / 1000).toFixed(0)} s`; };
+      mr.start(); t0 = Date.now(); e.target.innerHTML = '<span class="recdot"></span> Stop'; st.textContent = "Recording…";
+    } catch { toast("Could not use the microphone. Pick a file instead.", "bad"); }
+  };
+  f.onsubmit = (e) => {
+    e.preventDefault();
+    if (!blob) return toast("Add a recording first.", "bad");
+    const fd = new FormData(f); fd.set("file", blob, blob.name || "mood.webm");
+    if (!fd.get("mood")) return toast("Pick a mood.", "bad");
+    busy($("button[type=submit]", f), async () => { const r = await api("POST", `/api/me/voices/${v.id}/moods`, fd, true); toast(r.message, "ok"); await loadMine(); renderMine(); });
+  };
+}
 function renderMine() {
   const el = $("#mine"); if (!el) return;
-  el.innerHTML = S.mine.length ? S.mine.map((v) => `<div class="li"><div class="av" data-hue="${hue(v.id)}">${esc(v.name[0])}</div>
+  el.innerHTML = S.mine.length ? S.mine.map((v) => `<div class="li" style="flex-wrap:wrap"><div class="av" data-hue="${hue(v.id)}">${esc(v.name[0])}</div>
     <div class="grow"><b>${esc(v.name)}</b> ${statusTag(v)}<div class="small muted"><code>${esc(v.id)}</code> · ${v.visibility === "public" ? "🌍 Public" : "🔒 Private"}${v.hidden ? " · hidden by admin" : ""}${v.error ? " · " + esc(v.error.slice(0, 80)) : ""}</div></div>
-    ${v.status === "ready" ? `<button class="btn sm" data-mp="${esc(v.id)}">▶</button><button class="btn sm" data-mv="${esc(v.id)}" data-to="${v.visibility === "public" ? "private" : "public"}">Make ${v.visibility === "public" ? "private" : "public"}</button><button class="btn sm" data-mu="${esc(v.id)}">Use</button>` : ""}
-    ${v.status !== "processing" ? `<button class="btn sm danger" data-md="${esc(v.id)}" aria-label="Delete">✕</button>` : ""}</div>`).join("")
+    ${v.status === "ready" ? `<button class="btn sm" data-mv="${esc(v.id)}" data-to="${v.visibility === "public" ? "private" : "public"}">Make ${v.visibility === "public" ? "private" : "public"}</button><button class="btn sm" data-mu="${esc(v.id)}">Use</button>` : ""}
+    ${v.status !== "processing" ? `<button class="btn sm danger" data-md="${esc(v.id)}" aria-label="Delete">✕</button>` : ""}
+    ${v.status === "ready" ? `<div style="flex-basis:100%">${mineMoods(v)}</div>` : ""}</div>`).join("")
     : '<div class="empty small">No voices yet. Your clones show up here.</div>';
   for (const a of $$("[data-hue]", el)) a.style.setProperty("--h", a.dataset.hue);
-  for (const b of $$("[data-mp]", el)) b.onclick = () => { const v = voiceById(b.dataset.mp); playTrack({ src: v.sample, title: v.name, sub: "Your cloned voice", h: hue(v.id) }); };
+  for (const b of $$("[data-mmp]", el)) b.onclick = (e) => {
+    const v = voiceById(b.dataset.mmp), m = b.dataset.m;
+    if (e.target.closest("[data-mdel]")) { if (confirm(`Remove the ${moodLabel(m)} version?`)) busy(b, async () => { await api("DELETE", `/api/me/voices/${v.id}/moods/${m}`); await loadMine(); renderMine(); }); return; }
+    playTrack({ src: (v.samples || {})[m] || v.sample, title: `${v.name} · ${moodLabel(m)}`, sub: "Your cloned voice", h: hue(v.id) });
+  };
+  for (const b of $$("[data-addmood]", el)) b.onclick = () => openAddMood(voiceById(b.dataset.addmood));
   for (const b of $$("[data-mu]", el)) b.onclick = () => { sessionStorage.setItem("tfe_voice", b.dataset.mu); location.hash = "#/studio"; };
   for (const b of $$("[data-mv]", el)) b.onclick = () => busy(b, async () => { await api("PATCH", `/api/me/voices/${b.dataset.mv}`, { visibility: b.dataset.to }); await loadMine(); renderMine(); loadVoices(); toast(`Now ${b.dataset.to}.`, "ok"); });
-  for (const b of $$("[data-md]", el)) b.onclick = () => { if (confirm("Delete this voice for good?")) busy(b, async () => { await api("DELETE", `/api/me/voices/${b.dataset.md}`); await loadMine(); renderMine(); }); };
+  for (const b of $$("[data-md]", el)) b.onclick = () => { if (confirm("Delete this voice and all its moods for good?")) busy(b, async () => { await api("DELETE", `/api/me/voices/${b.dataset.md}`); await loadMine(); renderMine(); }); };
   clearTimeout(mineTimer); clearTimeout(musicTimer);
-  if (S.mine.some((v) => v.status === "queued" || v.status === "processing")) mineTimer = setTimeout(async () => { if (!$("#mine")) return; const before = S.mine.filter((v) => v.status === "ready").length; await loadMine(); if (S.mine.filter((v) => v.status === "ready").length > before) toast("Your voice is ready! 🎉", "ok"); renderMine(); }, 10000);
+  const busyNow = (v) => v.status === "queued" || v.status === "processing" || (v.mood_jobs || []).some((j) => j.status === "queued" || j.status === "processing");
+  if (S.mine.some(busyNow)) mineTimer = setTimeout(async () => {
+    if (!$("#mine") || $$(".addmood:not([hidden])").length) return;
+    const count = () => S.mine.reduce((n, v) => n + (v.status === "ready" ? (v.moods || []).length : 0), 0), before = count();
+    await loadMine(); if (count() > before) toast("Your voice is ready! 🎉", "ok"); renderMine();
+  }, 10000);
 }
 
 /* ------------------------------------------------------------ router */

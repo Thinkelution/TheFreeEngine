@@ -254,3 +254,21 @@ section.wrap, .page { min-width: 0 }
 .vp-row:hover .vp-play { opacity: 1 } .vp-play:hover { background: var(--text); color: var(--bg) }
 .vp-play svg { width: 12px; height: 12px; fill: currentColor } .vp-play .i-pause { display: none }
 .vp-check { color: #c4b5fd; font-weight: 700; width: 16px; text-align: center }
+/* moods */
+.mchip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: .76rem; font-weight: 600;
+  border: 1px solid var(--line2); background: rgba(0,0,0,.2); color: var(--dim); cursor: pointer; transition: background .15s, color .15s, border-color .15s }
+.mchip:hover { color: var(--text); border-color: rgba(255,255,255,.3) }
+.mchip.on { background: rgba(139,108,255,.22); border-color: rgba(139,108,255,.6); color: var(--text) }
+.mchip.off { opacity: .4 }
+.mchip .x { margin-left: 2px; opacity: .55 } .mchip .x:hover { opacity: 1; color: var(--bad) }
+.vc .tags { row-gap: 6px }
+.moodrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding-top: 10px }
+.try .moodrow { padding: 4px 6px 6px }
+.libmoods { margin: -6px 0 16px; align-items: center }
+.fsel { display: inline-flex; align-items: center; gap: 6px; font-size: .84rem; color: var(--faint) }
+.fsel select { width: auto; padding: 6px 10px; border-radius: 999px; background: var(--bg2); color: var(--text) }
+.fsel select option { background: var(--bg2); color: var(--text) }
+.moodseg { flex-wrap: wrap } .moodseg label { padding: 7px 12px; font-size: .9rem }
+.minemoods { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-left: 54px }
+.addmood { margin: 10px 0 0 54px }
+@media (max-width: 600px) { .minemoods, .addmood { padding-left: 0; margin-left: 0 } }

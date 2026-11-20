@@ -37,13 +37,29 @@ ok tts-session "$(c -b $D/ca -X POST -H "$H" -H "$J" -d '{"text":"Session works.
 ok tts-session-nocsrf "$(c -b $D/ca -X POST -H "$J" -d '{"text":"x","voice":"aria"}' $U/v1/tts)" 403
 ok tts-bad-voice "$(c -X POST -H "Authorization: Bearer $KEY" -H "$J" -d '{"text":"hi","voice":"nope"}' $U/v1/tts)" 404
 ok clone-no-consent "$(c -b $D/ca -H "$H" -F file=@"$WAV" -F name=Mine $U/api/me/voices)" 400
-R=$(curl -s -b $D/ca -H "$H" -F file=@"$WAV" -F name=Mine -F visibility=private -F consent=yes $U/api/me/voices); echo "  $R"
+R=$(curl -s -b $D/ca -H "$H" -F file=@"$WAV" -F name=Mine -F visibility=private -F mood=calm -F consent=yes $U/api/me/voices); echo "  $R"
 VID=$(echo "$R" | grep -o 'u_[0-9a-f]*' | head -1)
 for _ in $(seq 1 90); do S=$(curl -s -H "Authorization: Bearer $KEY" $U/v1/voices/$VID | grep -o '"status":"[a-z]*"'); [ "$S" = '"status":"ready"' -o "$S" = '"status":"failed"' ] && break; sleep 3; done
 ok clone-ready "$S" '"status":"ready"'
 ok clone-email "$(grep -c 'is ready' $D/mail.log)" 1
 ok tts-own-clone "$(c -X POST -H "Authorization: Bearer $KEY" -H "$J" -d "{\"text\":\"My own voice.\",\"voice\":\"$VID\"}" $U/v1/tts)" 200
 ok second-clone-blocked "$(c -b $D/ca -H "$H" -F file=@"$WAV" -F name=Two -F consent=yes $U/api/me/voices)" 429
+ok bad-mood "$(c -X POST -H "Authorization: Bearer $KEY" -H "$J" -d '{"text":"hi","voice":"aria","mood":"angry"}' $U/v1/tts)" 422
+ok mood-fallback-header "$(curl -s -o /dev/null -D - -X POST -H "Authorization: Bearer $KEY" -H "$J" -d "{\"text\":\"Hi there.\",\"voice\":\"$VID\",\"mood\":\"happy\"}" $U/v1/tts | grep -i '^x-tfe-mood' | tr -d '\r' | awk '{print $2}')" calm
+ok add-mood-same "$(c -b $D/ca -H "$H" -F file=@"$WAV" -F mood=calm -F consent=yes $U/api/me/voices/$VID/moods)" 409
+ok add-mood "$(c -H "Authorization: Bearer $KEY" -F file=@"$WAV" -F mood=happy -F consent=yes $U/v1/voices/$VID/moods)" 200
+for _ in $(seq 1 60); do S=$(curl -s -b $D/ca $U/api/me/voices | grep -o '"mood":"happy","status":"[a-z]*"'); [ "$S" = '"mood":"happy","status":"ready"' ] && break; sleep 3; done
+ok mood-ready "$S" '"mood":"happy","status":"ready"'
+ok mood-header "$(curl -s -o /dev/null -D - -X POST -H "Authorization: Bearer $KEY" -H "$J" -d "{\"text\":\"Hi there.\",\"voice\":\"$VID\",\"mood\":\"happy\"}" $U/v1/tts | grep -i '^x-tfe-mood' | tr -d '\r' | awk '{print $2}')" happy
+ok mood-at-syntax "$(c -X POST -H "Authorization: Bearer $KEY" -H "$J" -d "{\"text\":\"Hi.\",\"voice\":\"$VID@happy\"}" $U/v1/tts)" 200
+ok mood-sample "$(c -b $D/ca "$U/api/voices/$VID/sample?mood=happy")" 200
+ok mood-list "$(curl -s -b $D/ca $U/api/me/voices | grep -o '"moods":\["calm","happy"\]')" '"moods":["calm","happy"]'
+ok mood-delete "$(c -b $D/ca -X DELETE -H "$H" $U/api/me/voices/$VID/moods/happy)" 200
+ok voices-filter "$(c -H "Authorization: Bearer $KEY" "$U/v1/voices?gender=f&mood=neutral")" 200
+HM=$(curl -s $U/api/voices | grep -o '"id":"june"' | head -1)
+if [ -n "$HM" ] && [ -f "$TFE_VOICES/june@serious.safetensors" ]; then
+  ok house-mood "$(curl -s -o /dev/null -D - -X POST -H "Authorization: Bearer $KEY" -H "$J" -d '{"text":"Listen to me now.","voice":"june","mood":"serious"}' $U/v1/tts | grep -i '^x-tfe-mood' | tr -d '\r' | awk '{print $2}')" serious
+fi
 ok clones-used "$(curl -s -b $D/ca $U/api/me | grep -o '"clones_used":1')" '"clones_used":1'
 MR=$(curl -s -X POST -H "Authorization: Bearer $KEY" -H "$J" -d '{"prompt":"calm lofi beat","duration":10}' $U/v1/music)
 MID=$(echo "$MR" | grep -o 'm_[0-9a-f]*' | head -1)

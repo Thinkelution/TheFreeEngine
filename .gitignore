@@ -7,3 +7,4 @@ data/
 .env
 out/
 web/peaks.json
+voices/*@*.safetensors

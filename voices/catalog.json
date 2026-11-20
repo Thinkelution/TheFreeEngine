@@ -17,7 +17,32 @@
         "speaker_id": "1970",
         "utterance_id": "1970_26100_000021_000000",
         "text": "\"There's one thing I can't make out,\" I stated, \"and that is the strange cry of my sister in her delirium."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.54
+        },
+        "happy": {
+          "quality": 4.24,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "1970_28415_000060_000000",
+            "text": "\"Yes,\" the others agreed, \"we can't wait till the day of the Passover. If we should do anything to him on that day, there would be a riot.\""
+          }
+        },
+        "calm": {
+          "quality": 4.51,
+          "strength": 0.29,
+          "source": {
+            "utterance_id": "1970_28415_000061_000000",
+            "text": "They were at their wits' end to know how to get rid of Jesus."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "bella",
@@ -31,7 +56,48 @@
         "speaker_id": "3729",
         "utterance_id": "3729_6852_000004_000003",
         "text": "In order to please her, I spoke to her of the Abbe Conti, and I had occasion to quote two lines of that profound writer."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.53
+        },
+        "happy": {
+          "quality": 4.38,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "3729_6852_000048_000001",
+            "text": "I address him in Italian, and he answers very wittily, but his way of speaking makes me smile, and I tell him why."
+          }
+        },
+        "sad": {
+          "quality": 4.56,
+          "strength": 0.22,
+          "source": {
+            "utterance_id": "3729_6852_000078_000003",
+            "text": "I thanked him, but I was not deceived by his compliment."
+          }
+        },
+        "excited": {
+          "quality": 4.55,
+          "strength": 0.34,
+          "source": {
+            "utterance_id": "3729_6852_000048_000001",
+            "text": "I address him in Italian, and he answers very wittily, but his way of speaking makes me smile, and I tell him why."
+          }
+        },
+        "calm": {
+          "quality": 4.49,
+          "strength": 0.45,
+          "source": {
+            "utterance_id": "3729_6852_000008_000001",
+            "text": "She held her tongue, but from that time she told everybody that I was an impostor."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "clara",
@@ -45,7 +111,16 @@
         "speaker_id": "4853",
         "utterance_id": "4853_29413_000017_000012",
         "text": "In two words, sir, if you mean to charge him before the magistrates with attempting your life, I'll take my Bible oath he did attempt it, and you may call me as your witness."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.52
+        }
+      },
+      "pitch_band": "high",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "daisy",
@@ -59,7 +134,24 @@
         "speaker_id": "1246",
         "utterance_id": "1246_124548_000004_000000",
         "text": "She tried to have him appointed to the postmastership, which, since all the work was done by assistants, was the one sinecure in town, the one reward for political purity."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.52
+        },
+        "calm": {
+          "quality": 4.46,
+          "strength": 0.28,
+          "source": {
+            "utterance_id": "1246_124550_000012_000001",
+            "text": "Vida Sherwin had given her a letter to an earnest woman with eye glasses, plaid silk waist, and a belief in Bible Classes, who introduced her to the Pastor and the Nicer Members of Tincomb."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "ella",
@@ -73,7 +165,40 @@
         "speaker_id": "4160",
         "utterance_id": "4160_14187_000055_000000",
         "text": "After my colleague retired, which he did quite early, I sat for a long time pondering upon this singular case in which I found myself involved. And the more I thought about it the more puzzled I became."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "happy": {
+          "quality": 4.45,
+          "strength": 0.26,
+          "source": {
+            "utterance_id": "4160_11550_000043_000001",
+            "text": "She was beginning to feel more strangely concerning mr Denis Oglethorpe, and it was Priscilla Gower who had stirred her heart."
+          }
+        },
+        "excited": {
+          "quality": 4.5,
+          "strength": 0.6,
+          "source": {
+            "utterance_id": "4160_11550_000043_000001",
+            "text": "She was beginning to feel more strangely concerning mr Denis Oglethorpe, and it was Priscilla Gower who had stirred her heart."
+          }
+        },
+        "serious": {
+          "quality": 4.16,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "4160_14187_000008_000000",
+            "text": "At this moment Polton made a silent appearance on the stairs leading from the laboratory, giving me quite a start; and I was about to retire into the room when my ear caught the tinkle of a hansom approaching from Paper Buildings."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "fiona",
@@ -87,7 +212,40 @@
         "speaker_id": "1116",
         "utterance_id": "1116_132847_000004_000000",
         "text": "In old times, when all kinds of wonderful things happened in Brittany, there lived in the village of Lanillis, a young man named Houarn Pogamm and a girl called Bellah Postik."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.51
+        },
+        "sad": {
+          "quality": 4.52,
+          "strength": 1.15,
+          "source": {
+            "utterance_id": "1116_132847_000007_000000",
+            "text": "'Yes,' answered Bellah, with a deep sigh; 'but we live in such hard times, and at the last fair the price of pigs had risen again.'"
+          }
+        },
+        "excited": {
+          "quality": 4.07,
+          "strength": 0.49,
+          "source": {
+            "utterance_id": "1116_132851_000026_000001",
+            "text": "She went first to the cow house, which it was her duty to keep clean, but to her amazement she found fresh straw put down, the racks filled with hay, the cows milked, and the pails standing neatly in a row."
+          }
+        },
+        "calm": {
+          "quality": 4.24,
+          "strength": 0.63,
+          "source": {
+            "utterance_id": "1116_137572_000028_000000",
+            "text": "Some husbands, some wives, are artists at achieving and momentarily living up to romantic settings, but quickly flop down to the lower levels of decent fairness between the high spots of their sentimental flare ups."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "smooth",
+      "pace_band": "fast"
     },
     {
       "id": "grace",
@@ -101,7 +259,32 @@
         "speaker_id": "32",
         "utterance_id": "32_21634_000010_000000",
         "text": "After everybody crept out of his hiding place some time afterward (everyone had to hide for a while, you know), there was mr Crow sitting upon one of the fallen trees."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.51
+        },
+        "sad": {
+          "quality": 4.52,
+          "strength": 1.1,
+          "source": {
+            "utterance_id": "32_21634_000023_000001",
+            "text": "And the whole village seemed greatly disappointed, until Grandaddy Beaver made a short speech."
+          }
+        },
+        "calm": {
+          "quality": 4.47,
+          "strength": 0.98,
+          "source": {
+            "utterance_id": "32_4137_000037_000000",
+            "text": "Smith took from his pocket the bill of sale and handed it to Johnson; at the same time saying, \"I claim the right of redeeming that boy, mr Johnson."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "smooth",
+      "pace_band": "fast"
     },
     {
       "id": "hazel",
@@ -115,7 +298,48 @@
         "speaker_id": "7511",
         "utterance_id": "7511_102420_000007_000001",
         "text": "I have always loved a storm; the beat of hail and rain, and the roar of wind always appeal to me; but there was neither wind nor rain,--just flash and roar."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.51
+        },
+        "happy": {
+          "quality": 4.44,
+          "strength": 0.29,
+          "source": {
+            "utterance_id": "7511_102419_000015_000003",
+            "text": "Just beyond the ford we could see the game warden's cabin, with the stars and stripes fluttering gayly in the fresh morning breeze."
+          }
+        },
+        "sad": {
+          "quality": 4.44,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "7511_102420_000022_000003",
+            "text": "He tried to rise, but others coming leaped over him and knocked him down."
+          }
+        },
+        "excited": {
+          "quality": 3.8,
+          "strength": 0.24,
+          "source": {
+            "utterance_id": "7511_102419_000015_000003",
+            "text": "Just beyond the ford we could see the game warden's cabin, with the stars and stripes fluttering gayly in the fresh morning breeze."
+          }
+        },
+        "calm": {
+          "quality": 4.52,
+          "strength": 0.72,
+          "source": {
+            "utterance_id": "7511_102420_000013_000009",
+            "text": "It slid swiftly, and I could plainly hear the rattle of stones falling against stones, until with a muffled roar the whole hillside fell into the stream."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "iris",
@@ -129,7 +353,40 @@
         "speaker_id": "4362",
         "utterance_id": "4362_15663_000003_000001",
         "text": "A pedestrian on these mountain roads, especially so late in the year, is sure to excite curiosity, and many were the interrogations concerning my ramble."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "happy": {
+          "quality": 4.5,
+          "strength": 0.16,
+          "source": {
+            "utterance_id": "4362_15663_000026_000002",
+            "text": "The crisp crystal flowers seemed to touch one another and fairly to thicken the tremendous blast that carried them."
+          }
+        },
+        "excited": {
+          "quality": 4.51,
+          "strength": 0.41,
+          "source": {
+            "utterance_id": "4362_15663_000026_000002",
+            "text": "The crisp crystal flowers seemed to touch one another and fairly to thicken the tremendous blast that carried them."
+          }
+        },
+        "calm": {
+          "quality": 4.5,
+          "strength": 0.3,
+          "source": {
+            "utterance_id": "4362_15663_000019_000002",
+            "text": "Rhett and Klamath Lakes were eclipsed beneath clouds scarcely less brilliant than their own silvery disks."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "fast"
     },
     {
       "id": "june",
@@ -143,7 +400,56 @@
         "speaker_id": "1995",
         "utterance_id": "1995_1837_000012_000008",
         "text": "A great sheet of dazzling sunlight swept the place, and beneath lay a mighty mass of olive green, thick, tall, wet, and willowy."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.51
+        },
+        "happy": {
+          "quality": 4.51,
+          "strength": 0.27,
+          "source": {
+            "utterance_id": "1995_1826_000022_000000",
+            "text": "\"Cotton is a wonderful thing, is it not, boys?\" she said rather primly. The boys touched their hats and murmured something indistinctly."
+          }
+        },
+        "sad": {
+          "quality": 4.52,
+          "strength": 0.22,
+          "source": {
+            "utterance_id": "1995_1837_000015_000003",
+            "text": "There she lay-wet, bedraggled, motionless, gray pallid beneath her dark drawn skin, her burning eyes searching restlessly for some lost thing, her lips a moaning."
+          }
+        },
+        "excited": {
+          "quality": 4.51,
+          "strength": 0.95,
+          "source": {
+            "utterance_id": "1995_1826_000031_000003",
+            "text": "She reddened, drew herself up, and then, dropping her primness, rippled with laughter."
+          }
+        },
+        "calm": {
+          "quality": 4.49,
+          "strength": 0.23,
+          "source": {
+            "utterance_id": "1995_1836_000007_000000",
+            "text": "mrs Grey's chef was high priced and efficient, and her butler was the envy of many; consequently, she knew the dinner would be good."
+          }
+        },
+        "serious": {
+          "quality": 4.17,
+          "strength": 0.15,
+          "source": {
+            "utterance_id": "1995_1826_000026_000000",
+            "text": "\"What is planted over there?\" she asked, although she really didn't care."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "kira",
@@ -157,7 +463,40 @@
         "speaker_id": "5163",
         "utterance_id": "5163_39921_000048_000000",
         "text": "From that time out the Cropper boys were models of good behaviour and the other turbulent spirits, having lost their leaders, were soon quelled."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.51
+        },
+        "happy": {
+          "quality": 4.28,
+          "strength": 0.14,
+          "source": {
+            "utterance_id": "5163_39921_000012_000002",
+            "text": "This conviction was strengthened when he overtook her walking from school the next day and drove her home."
+          }
+        },
+        "excited": {
+          "quality": 4.42,
+          "strength": 0.12,
+          "source": {
+            "utterance_id": "5163_39921_000012_000002",
+            "text": "This conviction was strengthened when he overtook her walking from school the next day and drove her home."
+          }
+        },
+        "calm": {
+          "quality": 4.48,
+          "strength": 0.14,
+          "source": {
+            "utterance_id": "5163_18515_000050_000000",
+            "text": "\"Well, I had then, but I've begun again,\" said Jasper, recklessly."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "luna",
@@ -171,7 +510,32 @@
         "speaker_id": "2196",
         "utterance_id": "2196_170379_000005_000004",
         "text": "The former (Mesmer) thought further that metal became imbued by the solar qualities, and his system is also known as metalogy by which he meant the proper application of metals."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "sad": {
+          "quality": 4.53,
+          "strength": 0.69,
+          "source": {
+            "utterance_id": "2196_170151_000007_000004",
+            "text": "Disappointment and failure did not long daunt him; he offered himself as missionary to Africa,--and he was accepted."
+          }
+        },
+        "calm": {
+          "quality": 4.53,
+          "strength": 1.77,
+          "source": {
+            "utterance_id": "2196_170379_000006_000004",
+            "text": "dr Kroger, like a few others, has proved to his own satisfaction that all hypnotic phenomena can be produced at a non hypnotic level."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "maya",
@@ -185,7 +549,56 @@
         "speaker_id": "2817",
         "utterance_id": "2817_142371_000027_000000",
         "text": "\"And now, Poyser, as Satchell is laid up, I am intending to let the Chase Farm to a respectable tenant."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "happy": {
+          "quality": 4.45,
+          "strength": 0.18,
+          "source": {
+            "utterance_id": "2817_142371_000018_000003",
+            "text": "I like these premises, do you know, beyond any on the estate.\""
+          }
+        },
+        "sad": {
+          "quality": 4.44,
+          "strength": 1.05,
+          "source": {
+            "utterance_id": "2817_142380_000006_000001",
+            "text": "I have done everything now, however-everything that can be done to night, at least. Let us all sit down.\""
+          }
+        },
+        "excited": {
+          "quality": 4.31,
+          "strength": 0.41,
+          "source": {
+            "utterance_id": "2817_142371_000018_000003",
+            "text": "I like these premises, do you know, beyond any on the estate.\""
+          }
+        },
+        "calm": {
+          "quality": 4.18,
+          "strength": 0.38,
+          "source": {
+            "utterance_id": "2817_142371_000025_000001",
+            "text": "\"Do you know, mrs Poyser-sit down, pray, both of you-I've been far from contented, for some time, with mrs Satchell's dairy management."
+          }
+        },
+        "serious": {
+          "quality": 4.49,
+          "strength": 0.12,
+          "source": {
+            "utterance_id": "2817_142371_000032_000001",
+            "text": "Now, the plan I'm thinking of is to effect a little exchange."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "nora",
@@ -199,7 +612,40 @@
         "speaker_id": "403",
         "utterance_id": "403_126855_000019_000000",
         "text": "And that same evening, sure enough, they saw Chee Chee's cousin and a lot of other monkeys, who had not yet got sick, sitting in the trees by the edge of a swamp, looking and waiting for them."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "sad": {
+          "quality": 4.49,
+          "strength": 0.18,
+          "source": {
+            "utterance_id": "403_126855_000031_000002",
+            "text": "I am afraid we are going to be taken back to prison again.\" And he began to weep."
+          }
+        },
+        "excited": {
+          "quality": 4.51,
+          "strength": 0.28,
+          "source": {
+            "utterance_id": "403_126855_000017_000001",
+            "text": "So all this time, while the Doctor and his animals were going along towards the Land of the Monkeys, thinking themselves quite safe, they were still being followed by the King's men."
+          }
+        },
+        "calm": {
+          "quality": 4.53,
+          "strength": 0.39,
+          "source": {
+            "utterance_id": "403_128339_000003_000000",
+            "text": "\"Charles Evremonde, called Darnay!\""
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "fast"
     },
     {
       "id": "olive",
@@ -213,7 +659,48 @@
         "speaker_id": "2836",
         "utterance_id": "2836_5355_000035_000001",
         "text": "\"The temptation to sin, as you call it, lay not in my persuasions half so much as in your jealous anger toward your husband.\""
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "happy": {
+          "quality": 4.02,
+          "strength": 0.21,
+          "source": {
+            "utterance_id": "2836_5355_000014_000000",
+            "text": "\"Of course I meant to do so when I gave the promise,\" he interrupted."
+          }
+        },
+        "sad": {
+          "quality": 4.49,
+          "strength": 0.96,
+          "source": {
+            "utterance_id": "2836_5354_000007_000008",
+            "text": "Her face was white and worn, her hands were thin, her eyes were sunken and surrounded by a black circle-care was digging caves for them."
+          }
+        },
+        "excited": {
+          "quality": 4.11,
+          "strength": 0.27,
+          "source": {
+            "utterance_id": "2836_5355_000014_000000",
+            "text": "\"Of course I meant to do so when I gave the promise,\" he interrupted."
+          }
+        },
+        "calm": {
+          "quality": 4.47,
+          "strength": 1.42,
+          "source": {
+            "utterance_id": "2836_5355_000088_000000",
+            "text": "He took out his pocket book and placed the bank notes within it."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "piper",
@@ -227,7 +714,32 @@
         "speaker_id": "887",
         "utterance_id": "887_123291_000012_000001",
         "text": "Fresh discoveries of remains in the pleiocene formation had emboldened other geologists to refer back the human species to a higher antiquity still."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "sad": {
+          "quality": 4.49,
+          "strength": 0.71,
+          "source": {
+            "utterance_id": "887_123289_000008_000001",
+            "text": "I felt myself hurled into the waves; and if I escaped from death, and if my body was not torn over the sharp edges of the rocks, it was because the powerful arm of Hans came to my rescue."
+          }
+        },
+        "calm": {
+          "quality": 4.5,
+          "strength": 1.28,
+          "source": {
+            "utterance_id": "887_123291_000017_000006",
+            "text": "I have read the reports of the skeleton of Trapani, found in the fourteenth century, and which was at the time identified as that of Polyphemus; and the history of the giant unearthed in the sixteenth century near Palermo."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "fast"
     },
     {
       "id": "quinn",
@@ -241,7 +753,48 @@
         "speaker_id": "233",
         "utterance_id": "233_155990_000005_000005",
         "text": "As yet in neither case is there any efficient method of getting international action; and if joint action by several powers is secured, the result is usually considerably worse than if only one Power interfered."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "happy": {
+          "quality": 4.39,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "233_155990_000013_000004",
+            "text": "On the recommendation of john Hay, I succeeded in getting an agreement with Mexico to lay a matter in dispute between the two republics before the Hague Court."
+          }
+        },
+        "sad": {
+          "quality": 4.35,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "233_155990_000014_000004",
+            "text": "Russia, in spite of her gigantic strength, was, in my judgment, apt to lose even more than she had already lost if the struggle continued."
+          }
+        },
+        "excited": {
+          "quality": 4.39,
+          "strength": 0.37,
+          "source": {
+            "utterance_id": "233_155990_000013_000004",
+            "text": "On the recommendation of john Hay, I succeeded in getting an agreement with Mexico to lay a matter in dispute between the two republics before the Hague Court."
+          }
+        },
+        "calm": {
+          "quality": 4.48,
+          "strength": 0.43,
+          "source": {
+            "utterance_id": "233_155990_000014_000005",
+            "text": "I deemed it probable that she would no more be able successfully to defend Eastern Siberia and Northern Manchuria than she had been able to defend Southern Manchuria and Korea."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "rose",
@@ -255,7 +808,40 @@
         "speaker_id": "83",
         "utterance_id": "83_9960_000070_000000",
         "text": "At his feet, on the table, a bright ray of light from the full moon illuminated and seemed to point out to him a sheet of paper."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.47
+        },
+        "sad": {
+          "quality": 4.07,
+          "strength": 0.93,
+          "source": {
+            "utterance_id": "83_9960_000022_000000",
+            "text": "Marius had sufficient strength of mind to review in succession all the most heart breaking conjectures, seeking hope and finding none."
+          }
+        },
+        "excited": {
+          "quality": 4.46,
+          "strength": 0.71,
+          "source": {
+            "utterance_id": "83_11691_000069_000002",
+            "text": "Udo was gone too. He returned to the Palace, and began to think it out."
+          }
+        },
+        "serious": {
+          "quality": 4.47,
+          "strength": 1.0,
+          "source": {
+            "utterance_id": "83_9960_000085_000000",
+            "text": "\"Without cutting that man's throat?\" asked, the Thenardier woman."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "sage",
@@ -269,7 +855,40 @@
         "speaker_id": "3536",
         "utterance_id": "3536_8226_000010_000004",
         "text": "It ain't the regular line of business, Bozzle; and there ain't no good to be got, never, by going off the regular line.\" Whereupon Bozzle scratched his head and again read the letter."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.47
+        },
+        "happy": {
+          "quality": 4.12,
+          "strength": 0.15,
+          "source": {
+            "utterance_id": "3536_23268_000008_000000",
+            "text": "\"I mistook-for I had before given my word that I should pass it abroad.\""
+          }
+        },
+        "excited": {
+          "quality": 4.48,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "3536_23268_000006_000000",
+            "text": "She, however, flattered herself that what she had said might be excused as a mistake, the lapse of memory, or some other trifling fault, when he should know the truth."
+          }
+        },
+        "calm": {
+          "quality": 4.5,
+          "strength": 0.15,
+          "source": {
+            "utterance_id": "3536_8226_000020_000008",
+            "text": "Bozzle, who had stood at the inner door, saw that the gentleman was mr Trevelyan."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "tara",
@@ -283,7 +902,40 @@
         "speaker_id": "1183",
         "utterance_id": "1183_124566_000011_000001",
         "text": "The Master said, The man of upright life is obeyed before he speaks; commands even go unheeded when the life is crooked."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.46
+        },
+        "happy": {
+          "quality": 4.25,
+          "strength": 0.16,
+          "source": {
+            "utterance_id": "1183_133256_000051_000002",
+            "text": "The shades obtained by the use of Scheffler's Hair Colorine are natural looking also leaves the hair soft and glossy."
+          }
+        },
+        "excited": {
+          "quality": 4.53,
+          "strength": 0.22,
+          "source": {
+            "utterance_id": "1183_133256_000051_000002",
+            "text": "The shades obtained by the use of Scheffler's Hair Colorine are natural looking also leaves the hair soft and glossy."
+          }
+        },
+        "calm": {
+          "quality": 3.81,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "1183_128659_000021_000001",
+            "text": "Put a mark upon a paper for every bow you get, and when you have one hundred bury the paper and wish."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "uma",
@@ -297,7 +949,40 @@
         "speaker_id": "4507",
         "utterance_id": "4507_16021_000029_000002",
         "text": "The history of manners and ideas permeates the history of events, and this is true reciprocally."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.45
+        },
+        "sad": {
+          "quality": 4.55,
+          "strength": 0.28,
+          "source": {
+            "utterance_id": "4507_16021_000023_000007",
+            "text": "The sugar manufacturer who says: \"Loaf, clarified, lumps, bastard, common, burnt,\"--this honest manufacturer talks slang."
+          }
+        },
+        "excited": {
+          "quality": 4.4,
+          "strength": 0.96,
+          "source": {
+            "utterance_id": "4507_16021_000038_000002",
+            "text": "That is why we cry: Education! science!"
+          }
+        },
+        "calm": {
+          "quality": 4.51,
+          "strength": 1.83,
+          "source": {
+            "utterance_id": "4507_16021_000022_000003",
+            "text": "He would be like a philologist refusing to examine a fact in language, a philosopher hesitating to scrutinize a fact in humanity."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "vera",
@@ -311,7 +996,24 @@
         "speaker_id": "4992",
         "utterance_id": "4992_41797_000004_000002",
         "text": "One afternoon Nancy and Kathleen had walked up the road in search of pastures new, and had spied down in a distant hollow a gloomy grey house almost surrounded by cedars."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.43
+        },
+        "calm": {
+          "quality": 4.53,
+          "strength": 1.53,
+          "source": {
+            "utterance_id": "4992_41797_000011_000000",
+            "text": "\"People don't have to be doctors of medicine,\" interrupted Gilbert. \"Grandfather was Alexander Carey, l l.D.,--Doctor of Laws, that is.\""
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "fast"
     },
     {
       "id": "willow",
@@ -325,7 +1027,48 @@
         "speaker_id": "8975",
         "utterance_id": "8975_270782_000012_000008",
         "text": "Subsequently every opportunity is made use of to disparage the new arrival, and even attempts to do him bodily harm, direct attacks, are not unheard of."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.43
+        },
+        "happy": {
+          "quality": 3.97,
+          "strength": 0.13,
+          "source": {
+            "utterance_id": "8975_270782_000003_000002",
+            "text": "So we called the mode of expression of the dream work the archaic or regressive."
+          }
+        },
+        "sad": {
+          "quality": 4.45,
+          "strength": 0.13,
+          "source": {
+            "utterance_id": "8975_270782_000017_000000",
+            "text": "I mean the love rivalry, with the especial emphasis of the sex character."
+          }
+        },
+        "excited": {
+          "quality": 4.12,
+          "strength": 0.29,
+          "source": {
+            "utterance_id": "8975_270782_000003_000002",
+            "text": "So we called the mode of expression of the dream work the archaic or regressive."
+          }
+        },
+        "calm": {
+          "quality": 4.5,
+          "strength": 0.13,
+          "source": {
+            "utterance_id": "8975_270782_000017_000000",
+            "text": "I mean the love rivalry, with the especial emphasis of the sex character."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "xena",
@@ -339,7 +1082,24 @@
         "speaker_id": "1284",
         "utterance_id": "1284_1180_000020_000000",
         "text": "\"I never knew I was called the Unlucky,\" said Ojo, soberly; \"but it is really a good name for me.\""
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.4
+        },
+        "excited": {
+          "quality": 3.76,
+          "strength": 0.3,
+          "source": {
+            "utterance_id": "1284_1181_000037_000000",
+            "text": "\"Magic must be a very interesting study,\" said Ojo."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "yara",
@@ -353,7 +1113,40 @@
         "speaker_id": "3879",
         "utterance_id": "3879_173592_000007_000007",
         "text": "In close league with him was the mighty Oathcaqua, dwelling near Cape Canaveral, who gave his daughter, a maiden of wondrous beauty, in marriage to his great ally."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.39
+        },
+        "happy": {
+          "quality": 4.34,
+          "strength": 0.3,
+          "source": {
+            "utterance_id": "3879_174923_000017_000011",
+            "text": "If he'd drink it, which he never does, I think I'd bear it better than give it to that nasty Union."
+          }
+        },
+        "excited": {
+          "quality": 3.62,
+          "strength": 0.99,
+          "source": {
+            "utterance_id": "3879_174923_000017_000011",
+            "text": "If he'd drink it, which he never does, I think I'd bear it better than give it to that nasty Union."
+          }
+        },
+        "calm": {
+          "quality": 4.46,
+          "strength": 1.43,
+          "source": {
+            "utterance_id": "3879_173592_000008_000009",
+            "text": "He went home to dance round his trophies, and the French returned disgusted to Fort Caroline."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "zoe",
@@ -367,7 +1160,48 @@
         "speaker_id": "5895",
         "utterance_id": "5895_34622_000039_000000",
         "text": "For all that Thespis has lasted much longer than is generally believed. The travelling theatre is still in existence."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.39
+        },
+        "happy": {
+          "quality": 4.54,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "5895_34615_000019_000008",
+            "text": "Two convulsions of the face are infectious; laughing and yawning."
+          }
+        },
+        "sad": {
+          "quality": 4.53,
+          "strength": 0.15,
+          "source": {
+            "utterance_id": "5895_34629_000020_000000",
+            "text": "Curiosity, applause, receipts, crowds, the Laughing Man monopolized everything."
+          }
+        },
+        "excited": {
+          "quality": 4.11,
+          "strength": 0.18,
+          "source": {
+            "utterance_id": "5895_34615_000019_000000",
+            "text": "It was Gwynplaine's laugh which created the laughter of others, yet he did not laugh himself."
+          }
+        },
+        "calm": {
+          "quality": 4.55,
+          "strength": 0.5,
+          "source": {
+            "utterance_id": "5895_34615_000025_000000",
+            "text": "With this exception, Gwynplaine's laugh was everlasting."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "amber",
@@ -381,7 +1215,56 @@
         "speaker_id": "2182",
         "utterance_id": "2182_181173_000002_000001",
         "text": "It seemed almost impossible for him to realize that there was scarcely anything he might wish to do which he could not do easily; in fact, I think it may be said that he did not fully realize it at all."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.37
+        },
+        "happy": {
+          "quality": 3.89,
+          "strength": 0.35,
+          "source": {
+            "utterance_id": "2182_181183_000017_000000",
+            "text": "The pictures he spoke of were on the front page, and Dick was staring at one of them with his eyes and mouth open, and his sharp face almost pale with excitement."
+          }
+        },
+        "sad": {
+          "quality": 4.05,
+          "strength": 0.69,
+          "source": {
+            "utterance_id": "2182_181183_000037_000000",
+            "text": "mr Hobbs was immensely impressed by this suggestion and Dick's business capacity."
+          }
+        },
+        "excited": {
+          "quality": 4.3,
+          "strength": 0.83,
+          "source": {
+            "utterance_id": "2182_181183_000017_000000",
+            "text": "The pictures he spoke of were on the front page, and Dick was staring at one of them with his eyes and mouth open, and his sharp face almost pale with excitement."
+          }
+        },
+        "calm": {
+          "quality": 4.53,
+          "strength": 0.35,
+          "source": {
+            "utterance_id": "2182_181173_000014_000001",
+            "text": "Gloom had settled upon mr Hobbs; he was much depressed in spirits."
+          }
+        },
+        "serious": {
+          "quality": 4.49,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "2182_181173_000018_000003",
+            "text": "Perhaps he'll write and ask you, when I tell him about you."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "bree",
@@ -395,7 +1278,40 @@
         "speaker_id": "125",
         "utterance_id": "125_121124_000009_000003",
         "text": "He was punctual, dressed in black, with crape around his hat, and presented himself at his cousin's with a face made up for the occasion, and which he could alter as might be required."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.35
+        },
+        "excited": {
+          "quality": 4.46,
+          "strength": 1.18,
+          "source": {
+            "utterance_id": "125_121124_000097_000001",
+            "text": "\"I must visit him,\" he said, \"and obtain some pious grant from him.\""
+          }
+        },
+        "calm": {
+          "quality": 4.48,
+          "strength": 1.82,
+          "source": {
+            "utterance_id": "125_121124_000036_000001",
+            "text": "Oh, how happy you must be in not having either wife or children!\""
+          }
+        },
+        "serious": {
+          "quality": 4.51,
+          "strength": 0.24,
+          "source": {
+            "utterance_id": "125_121124_000098_000000",
+            "text": "\"Oh, you may make sure of him; his charities alone amount to twenty thousand francs a month.\""
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "cora",
@@ -409,7 +1325,40 @@
         "speaker_id": "8324",
         "utterance_id": "8324_286683_000011_000000",
         "text": "These fifteen children had been fairly well brought up, but you can see that their mother had many cares; so it is not strange if they sometimes behaved badly."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.34
+        },
+        "happy": {
+          "quality": 4.42,
+          "strength": 0.16,
+          "source": {
+            "utterance_id": "8324_286683_000005_000003",
+            "text": "The other pond people liked them much better than they did their neighbors, the Minks."
+          }
+        },
+        "sad": {
+          "quality": 4.33,
+          "strength": 0.12,
+          "source": {
+            "utterance_id": "8324_286682_000003_000001",
+            "text": "Then the fathers and mothers were very busy, for in each home there were four or five or six children, hungry and restless, and needing to be taught many things."
+          }
+        },
+        "excited": {
+          "quality": 3.96,
+          "strength": 0.77,
+          "source": {
+            "utterance_id": "8324_286681_000024_000001",
+            "text": "They swim with their legs in the water, and with their wings in the air,\" said the biggest one."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "dawn",
@@ -423,7 +1372,56 @@
         "speaker_id": "2035",
         "utterance_id": "2035_152373_000010_000001",
         "text": "The barren rock, about three miles in length, was covered with monastic buildings, and its cemetery was already adorned with the tombs of saints and kings."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.33
+        },
+        "happy": {
+          "quality": 3.78,
+          "strength": 0.23,
+          "source": {
+            "utterance_id": "2035_147961_000011_000002",
+            "text": "He grew more and more excited, and kept pointing all around his bed, as if there were things there and he wanted mr Shimerda to see them."
+          }
+        },
+        "sad": {
+          "quality": 4.49,
+          "strength": 1.04,
+          "source": {
+            "utterance_id": "2035_147961_000018_000003",
+            "text": "The wolves were coming together. There was no moon, but the starlight was clear on the snow."
+          }
+        },
+        "excited": {
+          "quality": 4.44,
+          "strength": 0.27,
+          "source": {
+            "utterance_id": "2035_147961_000011_000002",
+            "text": "He grew more and more excited, and kept pointing all around his bed, as if there were things there and he wanted mr Shimerda to see them."
+          }
+        },
+        "calm": {
+          "quality": 4.48,
+          "strength": 0.12,
+          "source": {
+            "utterance_id": "2035_147960_000004_000005",
+            "text": "The dogs were out, as usual, dozens of them, sitting up on their hind legs over the doors of their houses."
+          }
+        },
+        "serious": {
+          "quality": 4.44,
+          "strength": 0.13,
+          "source": {
+            "utterance_id": "2035_147961_000013_000008",
+            "text": "Antonia's father uncovered one of his long bony legs and rubbed it rhythmically."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "adam",
@@ -437,7 +1435,40 @@
         "speaker_id": "839",
         "utterance_id": "839_130898_000036_000001",
         "text": "The daring Cyrus Field, who had risked his whole fortune to promote this undertaking, called for a new bond issue."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.53
+        },
+        "sad": {
+          "quality": 4.46,
+          "strength": 0.79,
+          "source": {
+            "utterance_id": "839_130898_000016_000001",
+            "text": "While the Nautilus was clearing a path through their tight ranks, Conseil couldn't refrain from making this comment:"
+          }
+        },
+        "excited": {
+          "quality": 4.2,
+          "strength": 0.64,
+          "source": {
+            "utterance_id": "839_130898_000043_000002",
+            "text": "Ned Land (who promptly reappeared after we hugged shore) never stopped questioning me. What could I answer him?"
+          }
+        },
+        "calm": {
+          "quality": 4.45,
+          "strength": 0.29,
+          "source": {
+            "utterance_id": "839_130898_000054_000000",
+            "text": "The ceiling lights in the lounge then went out, the panels opened, and through the windows I saw, for a half mile radius, the sea brightly lit by the beacon's rays."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "ben",
@@ -451,7 +1482,40 @@
         "speaker_id": "446",
         "utterance_id": "446_123501_000002_000001",
         "text": "I knew that I was on Mars; not once did I question either my sanity or my wakefulness."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "happy": {
+          "quality": 4.5,
+          "strength": 0.16,
+          "source": {
+            "utterance_id": "446_123502_000012_000000",
+            "text": "As we neared the plaza and my presence was discovered we were immediately surrounded by hundreds of the creatures who seemed anxious to pluck me from my seat behind my guard."
+          }
+        },
+        "sad": {
+          "quality": 4.41,
+          "strength": 0.83,
+          "source": {
+            "utterance_id": "446_123501_000007_000001",
+            "text": "I did fairly well at this and in a few moments had reached the low, encircling wall of the enclosure."
+          }
+        },
+        "calm": {
+          "quality": 4.43,
+          "strength": 0.87,
+          "source": {
+            "utterance_id": "446_123501_000019_000003",
+            "text": "The highest type of man and one other animal, the only mammal existing on Mars, alone have well formed nails, and there are absolutely no hoofed animals in existence there."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "carl",
@@ -465,7 +1529,40 @@
         "speaker_id": "6064",
         "utterance_id": "6064_56165_000003_000000",
         "text": "When Edith's brother Philip came in from College to spend Saturday and Sunday, Edith's house was apt to be a rendezvous for the other girls. Not that Philip was likely to waste much time with mere girls."
-      }
+      },
+      "gender": "f",
+      "moods": {
+        "neutral": {
+          "quality": 4.52
+        },
+        "happy": {
+          "quality": 3.69,
+          "strength": 0.29,
+          "source": {
+            "utterance_id": "6064_56165_000059_000000",
+            "text": "\"She's invited to my cooking party next week,\" said Nora."
+          }
+        },
+        "sad": {
+          "quality": 3.75,
+          "strength": 0.45,
+          "source": {
+            "utterance_id": "6064_56165_000013_000001",
+            "text": "\"We don't knock each other down and run the risk of breaking one another's noses.\""
+          }
+        },
+        "excited": {
+          "quality": 4.32,
+          "strength": 0.36,
+          "source": {
+            "utterance_id": "6064_56165_000059_000000",
+            "text": "\"She's invited to my cooking party next week,\" said Nora."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "normal"
     },
     {
       "id": "dan",
@@ -479,7 +1576,32 @@
         "speaker_id": "8419",
         "utterance_id": "8419_286667_000007_000000",
         "text": "One morning, when the Cranes awakened, a fine young fellow began to strut up and down before the rest, bowing low, and leaping high into the air, and every now and then whooping as loudly as he could."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.51
+        },
+        "sad": {
+          "quality": 4.33,
+          "strength": 0.14,
+          "source": {
+            "utterance_id": "8419_293469_000005_000001",
+            "text": "\"When I was a little fellow,\" he said, \"I was strong and well, and could leap farther than any other Frog of my size."
+          }
+        },
+        "excited": {
+          "quality": 4.5,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "8419_286667_000006_000001",
+            "text": "They were fine looking, even when they slept, and some people never look well unless they are awake."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "eric",
@@ -493,7 +1615,40 @@
         "speaker_id": "3857",
         "utterance_id": "3857_182315_000018_000003",
         "text": "Because this yeast is in us there may be great and undreamed of possibilities awaiting mankind; but because of our line of descent there are also queer limitations."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "sad": {
+          "quality": 4.44,
+          "strength": 0.39,
+          "source": {
+            "utterance_id": "3857_180923_000011_000002",
+            "text": "He was captain in a New York regiment in the early part of the war, and became afterward superintendent of the Buffalo State Hospital, and a recognized authority on insanity before his death in eighteen ninety four."
+          }
+        },
+        "excited": {
+          "quality": 3.87,
+          "strength": 0.28,
+          "source": {
+            "utterance_id": "3857_182317_000005_000004",
+            "text": "Each little snake family could have eaten a herd of cattle at Christmas."
+          }
+        },
+        "calm": {
+          "quality": 4.5,
+          "strength": 0.89,
+          "source": {
+            "utterance_id": "3857_180923_000023_000002",
+            "text": "Though the large addition to its numbers which the increase in size necessitated made it perhaps somewhat less homogeneous than at first, it did not greatly alter its essential characteristics."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "felix",
@@ -507,7 +1662,40 @@
         "speaker_id": "8580",
         "utterance_id": "8580_287363_000013_000000",
         "text": "On his way back through the motor room Tom looked to the machinery, and adjusted some of the auxiliary oil feeders."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "sad": {
+          "quality": 4.48,
+          "strength": 0.35,
+          "source": {
+            "utterance_id": "8580_287364_000064_000004",
+            "text": "I had food and water, so I didn't touch any of yours,\" and he looked at mr Damon, who seemed much relieved."
+          }
+        },
+        "excited": {
+          "quality": 4.38,
+          "strength": 0.53,
+          "source": {
+            "utterance_id": "8580_287363_000005_000000",
+            "text": "\"A good start, Tom Swift,\" complimented mr Parker."
+          }
+        },
+        "calm": {
+          "quality": 4.45,
+          "strength": 0.78,
+          "source": {
+            "utterance_id": "8580_287364_000017_000000",
+            "text": "\"We shall have to proceed cautiously then,\" spoke mr Jenks."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "gavin",
@@ -521,7 +1709,24 @@
         "speaker_id": "3830",
         "utterance_id": "3830_12529_000014_000001",
         "text": "However, when we had discarded the idea of taking a canoe, we set to work with a hearty good will to build us a skiff."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "excited": {
+          "quality": 4.26,
+          "strength": 0.59,
+          "source": {
+            "utterance_id": "3830_12529_000012_000001",
+            "text": "We had pushed on past some good locations on the Chehalis, and farther south, without locating."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "henry",
@@ -535,7 +1740,48 @@
         "speaker_id": "2384",
         "utterance_id": "2384_152900_000010_000011",
         "text": "We then went to work to make clothes after the pattern of the Netchelli Eskimo, and the sewing went on early and late -- thick anoraks and thin ones, heavy breeches and light, winter stockings and summer stockings."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "happy": {
+          "quality": 4.43,
+          "strength": 0.25,
+          "source": {
+            "utterance_id": "2384_152900_000021_000005",
+            "text": "They were specially baked for us, and were made of oatmeal with the addition of dried milk and a little sugar; they were extremely nourishing and pleasant to the taste."
+          }
+        },
+        "sad": {
+          "quality": 4.5,
+          "strength": 0.47,
+          "source": {
+            "utterance_id": "2384_152900_000021_000011",
+            "text": "We also took dried milk from a firm in Wisconsin; this milk had an addition of malt and sugar, and was, in my opinion, excellent; it also kept good the whole time."
+          }
+        },
+        "excited": {
+          "quality": 4.51,
+          "strength": 0.14,
+          "source": {
+            "utterance_id": "2384_152900_000021_000005",
+            "text": "They were specially baked for us, and were made of oatmeal with the addition of dried milk and a little sugar; they were extremely nourishing and pleasant to the taste."
+          }
+        },
+        "calm": {
+          "quality": 4.47,
+          "strength": 0.16,
+          "source": {
+            "utterance_id": "2384_152900_000010_000016",
+            "text": "It was easy to tie the end of the cover together like the mouth of the sack, and this kept the snow out of the bag during the day's march."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "ivan",
@@ -549,7 +1795,48 @@
         "speaker_id": "2300",
         "utterance_id": "2300_131720_000003_000001",
         "text": "It went into service august fifteenth eighteen eighty two, about three weeks before the Pearl Street station."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.48
+        },
+        "happy": {
+          "quality": 4.31,
+          "strength": 0.24,
+          "source": {
+            "utterance_id": "2300_131720_000035_000001",
+            "text": "We then went to the dynamo room, where I pointed out the machines converting the steam power into electricity, appearing later in the form of light in the lamps."
+          }
+        },
+        "sad": {
+          "quality": 4.49,
+          "strength": 0.58,
+          "source": {
+            "utterance_id": "2300_131720_000003_000002",
+            "text": "It consisted of one small dynamo of a capacity of two hundred and eighty lights of ten c.p. each, and was housed in an unpretentious wooden shed."
+          }
+        },
+        "excited": {
+          "quality": 3.83,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "2300_131720_000040_000002",
+            "text": "A model of this station is preserved in the Deutschen Museum at Munich."
+          }
+        },
+        "calm": {
+          "quality": 4.28,
+          "strength": 0.84,
+          "source": {
+            "utterance_id": "2300_131720_000026_000007",
+            "text": "They said they 'were sorry'--that is, 'Wall Street sorry'--and refused to pay it."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "jack",
@@ -563,7 +1850,48 @@
         "speaker_id": "196",
         "utterance_id": "196_122159_000002_000002",
         "text": "Not half as old as I felt just then; not half as uselessly wise as I knew myself to be."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.5
+        },
+        "happy": {
+          "quality": 4.46,
+          "strength": 0.13,
+          "source": {
+            "utterance_id": "196_122159_000011_000013",
+            "text": "He was looking me squarely in the face, and withdrew his gaze slowly."
+          }
+        },
+        "sad": {
+          "quality": 4.46,
+          "strength": 0.27,
+          "source": {
+            "utterance_id": "196_122152_000008_000000",
+            "text": "He was becoming irrelevant; a question to the point cut short his speech, like a pang of pain, and he felt extremely discouraged and weary."
+          }
+        },
+        "excited": {
+          "quality": 4.41,
+          "strength": 0.84,
+          "source": {
+            "utterance_id": "196_122159_000011_000013",
+            "text": "He was looking me squarely in the face, and withdrew his gaze slowly."
+          }
+        },
+        "calm": {
+          "quality": 4.41,
+          "strength": 0.23,
+          "source": {
+            "utterance_id": "196_122159_000014_000022",
+            "text": "But I knew the truth, and I would live it down-alone, with myself."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "kyle",
@@ -577,7 +1905,40 @@
         "speaker_id": "1235",
         "utterance_id": "1235_135883_000008_000003",
         "text": "When I have done this, I will come back and submit to whatever you shall please to command.\" \"But,\" said the genie, \"if I grant you the time you ask, I doubt you will never return?\""
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.48
+        },
+        "sad": {
+          "quality": 4.11,
+          "strength": 0.84,
+          "source": {
+            "utterance_id": "1235_135884_000003_000003",
+            "text": "My wife being jealous, cherished a hatred for both mother and child, but concealed her aversion so well, that I knew nothing of it till it was too late."
+          }
+        },
+        "excited": {
+          "quality": 4.5,
+          "strength": 0.23,
+          "source": {
+            "utterance_id": "1235_135884_000010_000003",
+            "text": "Yesterday, as I carried back the calf which you would not sacrifice, I perceived she laughed when she saw him, and in a moment after fell a weeping."
+          }
+        },
+        "calm": {
+          "quality": 4.43,
+          "strength": 1.03,
+          "source": {
+            "utterance_id": "1235_135884_000003_000001",
+            "text": "Her barrenness did not effect any change in my love; I still treated her with much kindness and affection."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "leo",
@@ -591,7 +1952,32 @@
         "speaker_id": "254",
         "utterance_id": "254_27760_000006_000008",
         "text": "More than once they had nearly broken his hind legs, twice he had been hung up, every week he was nearly flogged to death, but he always recovered."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "excited": {
+          "quality": 4.49,
+          "strength": 0.44,
+          "source": {
+            "utterance_id": "254_27760_000009_000000",
+            "text": "The old man goes into indescribable ecstasies, breaks into loud laughter, and cries:"
+          }
+        },
+        "calm": {
+          "quality": 4.48,
+          "strength": 0.89,
+          "source": {
+            "utterance_id": "254_27760_000018_000003",
+            "text": "The frost crackled, his grandfather crackled, and as they both did, Vanka did the same."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "normal"
     },
     {
       "id": "max",
@@ -605,7 +1991,24 @@
         "speaker_id": "7127",
         "utterance_id": "7127_75946_000029_000000",
         "text": "\"My affairs concern myself alone, monsieur; and I have already told you I transact them without interference.\""
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "sad": {
+          "quality": 4.43,
+          "strength": 0.79,
+          "source": {
+            "utterance_id": "7127_75947_000038_000000",
+            "text": "\"Yes, very unhappy, and very much to be pitied, Monsieur de Guiche, for you seem to be suffering terribly.\""
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "nate",
@@ -619,7 +2022,32 @@
         "speaker_id": "1334",
         "utterance_id": "1334_135589_000002_000000",
         "text": "\"You have to choose between two generals, both great in the art of war-Conde and Turenne."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.49
+        },
+        "excited": {
+          "quality": 4.42,
+          "strength": 0.43,
+          "source": {
+            "utterance_id": "1334_135589_000042_000000",
+            "text": "\"Patience Heatherstone,\" cried Edward, \"the toast of all London!\""
+          }
+        },
+        "calm": {
+          "quality": 4.35,
+          "strength": 1.34,
+          "source": {
+            "utterance_id": "1334_135589_000016_000002",
+            "text": "Turenne bore down Conde, who had gained every campaign; and the court of Spain, wearied with reverses, made overtures of peace, which was gladly accepted by the French."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "fast"
     },
     {
       "id": "owen",
@@ -633,7 +2061,40 @@
         "speaker_id": "3170",
         "utterance_id": "3170_137482_000013_000000",
         "text": "The waiter of the magazzino came to be paid, and our chief gave him what was due, enjoining silence under penalty of death."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.48
+        },
+        "happy": {
+          "quality": 4.39,
+          "strength": 0.14,
+          "source": {
+            "utterance_id": "3170_137482_000008_000000",
+            "text": "The city was alive with complaints, and we laughed at the useless search made by the police to find out those who disturbed the peace of the inhabitants."
+          }
+        },
+        "excited": {
+          "quality": 4.43,
+          "strength": 0.73,
+          "source": {
+            "utterance_id": "3170_137482_000016_000001",
+            "text": "We intend only to take some refreshment at the Rialto, and then we will take you home in safety.\""
+          }
+        },
+        "calm": {
+          "quality": 4.43,
+          "strength": 0.34,
+          "source": {
+            "utterance_id": "3170_137482_000042_000000",
+            "text": "\"Doctor, the person who has delivered me from your mercury, which was killing me, is a more skilful physician than you;\" and, saying these words, he pointed to me."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "warm",
+      "pace_band": "fast"
     },
     {
       "id": "paul",
@@ -647,7 +2108,32 @@
         "speaker_id": "8770",
         "utterance_id": "8770_295462_000011_000000",
         "text": "It was young Lincoln's patriotic love for George Washington which did so much to bring about, in time, a double emancipation from white slavery and black."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.47
+        },
+        "excited": {
+          "quality": 4.47,
+          "strength": 0.37,
+          "source": {
+            "utterance_id": "8770_295462_000051_000002",
+            "text": "Henceforth I see the light and the country is saved.'"
+          }
+        },
+        "calm": {
+          "quality": 4.49,
+          "strength": 0.34,
+          "source": {
+            "utterance_id": "8770_295462_000011_000000",
+            "text": "It was young Lincoln's patriotic love for George Washington which did so much to bring about, in time, a double emancipation from white slavery and black."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "quentin",
@@ -661,7 +2147,48 @@
         "speaker_id": "2136",
         "utterance_id": "2136_5147_000057_000000",
         "text": "So she lighted her candle in the lobby, and with a light and agile step she scaled the stairs, I following; and having found the remedies, we approached Madame's room together."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.48
+        },
+        "happy": {
+          "quality": 4.45,
+          "strength": 0.16,
+          "source": {
+            "utterance_id": "2136_5147_000040_000000",
+            "text": "'Yes, and really, Austin, it is quite clear you ought to marry; you want some one to take this girl out, and look after her, and who's to do it? She's a dowdy-don't you see?"
+          }
+        },
+        "sad": {
+          "quality": 4.3,
+          "strength": 0.28,
+          "source": {
+            "utterance_id": "2136_5140_000005_000003",
+            "text": "Fancies and regrets float mistily in the dream, and the scene affects us with a strange mixture of memory and anticipation, like some sweet old air heard in the distance."
+          }
+        },
+        "excited": {
+          "quality": 4.5,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "2136_5147_000040_000000",
+            "text": "'Yes, and really, Austin, it is quite clear you ought to marry; you want some one to take this girl out, and look after her, and who's to do it? She's a dowdy-don't you see?"
+          }
+        },
+        "calm": {
+          "quality": 4.45,
+          "strength": 1.35,
+          "source": {
+            "utterance_id": "2136_5143_000011_000007",
+            "text": "Doctor Somebody presented his compliments to Madame de la Rougierre, and ordered her a table spoonful of brandy and some drops of laudanum whenever the pain of stomach returned."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "normal"
     },
     {
       "id": "reed",
@@ -675,7 +2202,48 @@
         "speaker_id": "911",
         "utterance_id": "911_128684_000013_000002",
         "text": "When clouds float by the moon, it is as if both clouds and moon and we ourselves shared in the motion."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.47
+        },
+        "happy": {
+          "quality": 4.44,
+          "strength": 0.26,
+          "source": {
+            "utterance_id": "911_128684_000015_000004",
+            "text": "It is the very light of the arc lamp which displaces the darkness of the midnight street, etc"
+          }
+        },
+        "sad": {
+          "quality": 4.45,
+          "strength": 0.96,
+          "source": {
+            "utterance_id": "911_130578_000003_000003",
+            "text": "He asked her what she was eating: \"Some pulse I got from the village headman,\" \"Give me a little to try\" he begged."
+          }
+        },
+        "excited": {
+          "quality": 4.44,
+          "strength": 0.15,
+          "source": {
+            "utterance_id": "911_128684_000015_000004",
+            "text": "It is the very light of the arc lamp which displaces the darkness of the midnight street, etc"
+          }
+        },
+        "calm": {
+          "quality": 4.44,
+          "strength": 0.54,
+          "source": {
+            "utterance_id": "911_130578_000003_000000",
+            "text": "He journeyed on all day and at nightfall he came to a village; there he went up to the house of an old woman to ask for a bed."
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "sam",
@@ -689,7 +2257,40 @@
         "speaker_id": "8088",
         "utterance_id": "8088_284756_000014_000000",
         "text": "The structure itself loomed up before me in a few seconds, a rambling affair with square shouldered balconies and a great deal of wrought iron work, after the most flamboyant Spanish pattern."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.47
+        },
+        "happy": {
+          "quality": 3.78,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "8088_284756_000085_000002",
+            "text": "What-I glanced at Mercer, and he laughed aloud with pleasure and excitement."
+          }
+        },
+        "excited": {
+          "quality": 4.43,
+          "strength": 0.18,
+          "source": {
+            "utterance_id": "8088_284756_000073_000000",
+            "text": "\"And what do you plan to do now?\" I asked eagerly, glancing down at the beautiful pale face that glimmered up at me through the clear water of the pool."
+          }
+        },
+        "calm": {
+          "quality": 4.46,
+          "strength": 0.73,
+          "source": {
+            "utterance_id": "8088_284756_000202_000000",
+            "text": "\"No, Taylor, we have been party to what was close to a miracle."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "fast"
     },
     {
       "id": "theo",
@@ -703,7 +2304,32 @@
         "speaker_id": "405",
         "utterance_id": "405_130895_000020_000000",
         "text": "\"Sure,\" Ned Land went on, \"but it remains to be seen whether we'll make for the Atlantic or the Pacific, in other words, whether we'll end up in well traveled or deserted seas.\""
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.47
+        },
+        "sad": {
+          "quality": 4.4,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "405_130895_000003_000002",
+            "text": "Next to me my two companions were getting tipsy on the fresh oxygen particles. Poor souls who have suffered from long starvation mustn't pounce heedlessly on the first food given them."
+          }
+        },
+        "calm": {
+          "quality": 4.35,
+          "strength": 1.09,
+          "source": {
+            "utterance_id": "405_130895_000055_000000",
+            "text": "The Canadian and I sat him up; we massaged his contracted arms, and when he regained his five senses, that eternal classifier mumbled in a broken voice:"
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "upton",
@@ -717,7 +2343,48 @@
         "speaker_id": "2843",
         "utterance_id": "2843_152918_000006_000004",
         "text": "We knew by experience that a gleam like this, a clearing in the weather, might come suddenly, and then one had to be on the spot."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.45
+        },
+        "happy": {
+          "quality": 3.93,
+          "strength": 0.18,
+          "source": {
+            "utterance_id": "2843_152918_000006_000004",
+            "text": "We knew by experience that a gleam like this, a clearing in the weather, might come suddenly, and then one had to be on the spot."
+          }
+        },
+        "sad": {
+          "quality": 4.36,
+          "strength": 0.38,
+          "source": {
+            "utterance_id": "2843_152918_000002_000001",
+            "text": "The tent was not only drifted up, but covered with ice, and in taking it down we had to handle it with care. so as not to break it in pieces."
+          }
+        },
+        "excited": {
+          "quality": 4.4,
+          "strength": 0.54,
+          "source": {
+            "utterance_id": "2843_152918_000006_000004",
+            "text": "We knew by experience that a gleam like this, a clearing in the weather, might come suddenly, and then one had to be on the spot."
+          }
+        },
+        "calm": {
+          "quality": 4.43,
+          "strength": 0.32,
+          "source": {
+            "utterance_id": "2843_152918_000002_000001",
+            "text": "The tent was not only drifted up, but covered with ice, and in taking it down we had to handle it with care. so as not to break it in pieces."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "bright",
+      "pace_band": "fast"
     },
     {
       "id": "vince",
@@ -731,7 +2398,40 @@
         "speaker_id": "8609",
         "utterance_id": "8609_262281_000012_000002",
         "text": "Lady Augusta was wont to say that she had too much expense with her boys to keep many servants; and the argument was a true one."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.46
+        },
+        "sad": {
+          "quality": 4.32,
+          "strength": 0.83,
+          "source": {
+            "utterance_id": "8609_262281_000057_000000",
+            "text": "\"Not quite destroyed it,\" replied Constance, though she sighed sadly as she spoke, as if nearly losing heart for the task she had undertaken. \"There is so much ill to undo."
+          }
+        },
+        "excited": {
+          "quality": 4.44,
+          "strength": 0.12,
+          "source": {
+            "utterance_id": "8609_262281_000064_000000",
+            "text": "\"I think it is possible that his experience in another line may be of service to you,\" continued mr Yorke."
+          }
+        },
+        "calm": {
+          "quality": 4.31,
+          "strength": 1.84,
+          "source": {
+            "utterance_id": "8609_262281_000027_000000",
+            "text": "\"If I were to come to you every morning at seven o'clock, would you undertake to get up and be ready for me?\" asked Constance."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "warm",
+      "pace_band": "fast"
     },
     {
       "id": "wade",
@@ -745,7 +2445,48 @@
         "speaker_id": "5322",
         "utterance_id": "5322_7678_000004_000001",
         "text": "The morning moisture had dried up even in the forest, and myriads of mosquitoes literally covered his face, his back, and his arms."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.45
+        },
+        "happy": {
+          "quality": 4.47,
+          "strength": 0.25,
+          "source": {
+            "utterance_id": "5322_7680_000061_000000",
+            "text": "Lukashka went back alone to the cordon pondering over Olenin's action. Though he did not consider the horse a good one, yet it was worth at least forty rubles and Lukashka was very glad to have the present."
+          }
+        },
+        "excited": {
+          "quality": 4.48,
+          "strength": 0.47,
+          "source": {
+            "utterance_id": "5322_7680_000061_000000",
+            "text": "Lukashka went back alone to the cordon pondering over Olenin's action. Though he did not consider the horse a good one, yet it was worth at least forty rubles and Lukashka was very glad to have the present."
+          }
+        },
+        "calm": {
+          "quality": 4.42,
+          "strength": 0.99,
+          "source": {
+            "utterance_id": "5322_7679_000008_000000",
+            "text": "'He's a trump!' and Lukashka, evidently much interested, began talking to the scout in Tartar."
+          }
+        },
+        "serious": {
+          "quality": 4.47,
+          "strength": 0.22,
+          "source": {
+            "utterance_id": "5322_7678_000006_000006",
+            "text": "'Why am I happy, and what used I to live for?' thought he."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "xavier",
@@ -759,7 +2500,40 @@
         "speaker_id": "6930",
         "utterance_id": "6930_81414_000046_000004",
         "text": "Undoubtedly the Egyptian knew too much for Voltaire, and so I was made a tool whereby he could be freed from troublesome obstacles."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.44
+        },
+        "happy": {
+          "quality": 3.94,
+          "strength": 0.12,
+          "source": {
+            "utterance_id": "6930_76324_000026_000003",
+            "text": "I just touched something soft!\" On the instant, Joyce was at her side with the candle."
+          }
+        },
+        "excited": {
+          "quality": 4.33,
+          "strength": 0.78,
+          "source": {
+            "utterance_id": "6930_76324_000019_000004",
+            "text": "I wonder, though, if people could see the light from the street, through any chinks in the boarding?\""
+          }
+        },
+        "calm": {
+          "quality": 4.36,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "6930_76324_000030_000000",
+            "text": "\"'tuesday april sixteenth eighteen sixty one.'\""
+          }
+        }
+      },
+      "pitch_band": "high",
+      "tone": "bright",
+      "pace_band": "normal"
     },
     {
       "id": "york",
@@ -773,7 +2547,48 @@
         "speaker_id": "4859",
         "utterance_id": "4859_29340_000006_000001",
         "text": "This condition is never observed by the universal historians, and so to explain the resultant forces they are obliged to admit, in addition to the insufficient components, another unexplained force affecting the resultant action."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.44
+        },
+        "happy": {
+          "quality": 4.43,
+          "strength": 0.53,
+          "source": {
+            "utterance_id": "4859_26870_000017_000002",
+            "text": "The whole summer, from spring sowing to harvest, he was busy with the work on his farm."
+          }
+        },
+        "sad": {
+          "quality": 4.3,
+          "strength": 0.36,
+          "source": {
+            "utterance_id": "4859_22176_000020_000004",
+            "text": "It suffused him, seized him, and enveloped him completely."
+          }
+        },
+        "excited": {
+          "quality": 4.51,
+          "strength": 1.3,
+          "source": {
+            "utterance_id": "4859_26870_000025_000003",
+            "text": "The house was spacious and had rooms for the house serfs and apartments for visitors."
+          }
+        },
+        "serious": {
+          "quality": 4.26,
+          "strength": 0.14,
+          "source": {
+            "utterance_id": "4859_26870_000023_000001",
+            "text": "It really seemed that Sonya did not feel her position trying, and had grown quite reconciled to her lot as a sterile flower."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "fast"
     },
     {
       "id": "zane",
@@ -787,7 +2602,40 @@
         "speaker_id": "4813",
         "utterance_id": "4813_248641_000015_000003",
         "text": "These two small galleries, between the roof and the choir loft, held for thirty years, in diminishing numbers, negroes and Indians."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.43
+        },
+        "happy": {
+          "quality": 4.45,
+          "strength": 0.22,
+          "source": {
+            "utterance_id": "4813_248641_000013_000003",
+            "text": "It was religious zeal which furnished this motive power."
+          }
+        },
+        "sad": {
+          "quality": 4.46,
+          "strength": 0.88,
+          "source": {
+            "utterance_id": "4813_248641_000020_000006",
+            "text": "Even your voice repeats the words which those old patriarchs, well versed in Biblical lore, chose for their neighborhood names."
+          }
+        },
+        "calm": {
+          "quality": 4.37,
+          "strength": 0.19,
+          "source": {
+            "utterance_id": "4813_248641_000004_000003",
+            "text": "A strange procession, indeed, for a road originally marked by the moccasined feet of Indians, and widened gradually by the toilsome journeyings of rough Colonial carts and coaches."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "alan",
@@ -801,7 +2649,40 @@
         "speaker_id": "460",
         "utterance_id": "460_172357_000004_000006",
         "text": "Yet I saw enough of farming to speak exuberantly in political addresses of the joy of early rising and the deep sleep, both of body and intellect, that is induced by honest manual toil."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.42
+        },
+        "happy": {
+          "quality": 4.34,
+          "strength": 0.29,
+          "source": {
+            "utterance_id": "460_172359_000070_000000",
+            "text": "In fact, I had perhaps borne him a grudge for what seemed to me his perpetual interest in the great capitalists."
+          }
+        },
+        "excited": {
+          "quality": 4.32,
+          "strength": 0.38,
+          "source": {
+            "utterance_id": "460_172359_000064_000001",
+            "text": "You could see it all there in the pictures-tobacco plants and the insurrectos-everything."
+          }
+        },
+        "serious": {
+          "quality": 4.37,
+          "strength": 0.13,
+          "source": {
+            "utterance_id": "460_172359_000067_000000",
+            "text": "One reason, perhaps, why Jeff didn't give up shaving was because it allowed him to talk about Cuba."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "fast"
     },
     {
       "id": "brett",
@@ -815,7 +2696,32 @@
         "speaker_id": "26",
         "utterance_id": "26_496_000021_000001",
         "text": "Some heard voices warning them to be gone, for that there would be such a plague in London, so that the living would not be able to bury the dead."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.39
+        },
+        "sad": {
+          "quality": 4.38,
+          "strength": 0.15,
+          "source": {
+            "utterance_id": "26_495_000057_000000",
+            "text": "I went home that evening greatly oppressed in my mind, irresolute, and not knowing what to do."
+          }
+        },
+        "calm": {
+          "quality": 4.41,
+          "strength": 0.17,
+          "source": {
+            "utterance_id": "26_495_000039_000000",
+            "text": "Till this week the city continued free, there having never any died, except that one Frenchman whom I mentioned before, within the whole ninety seven parishes."
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "normal"
     },
     {
       "id": "cole",
@@ -829,7 +2735,24 @@
         "speaker_id": "6454",
         "utterance_id": "6454_93938_000020_000000",
         "text": "\"It will take just one day to have habeas corpus proceedings in a United States court, and one more to get the papers here,\" I rejoined pleasantly."
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.37
+        },
+        "sad": {
+          "quality": 4.31,
+          "strength": 0.8,
+          "source": {
+            "utterance_id": "6454_93938_000026_000003",
+            "text": "When I turned to do so I saw the lot struggling up from the floor, and, knowing that it wouldn't take them many seconds to find their way out through the window, I didn't waste much time in watching them."
+          }
+        }
+      },
+      "pitch_band": "low",
+      "tone": "deep",
+      "pace_band": "normal"
     },
     {
       "id": "drew",
@@ -843,7 +2766,48 @@
         "speaker_id": "908",
         "utterance_id": "908_157963_000004_000000",
         "text": "Does the Eagle know what is in the pit? Or wilt thou go ask the Mole: Can Wisdom be put in a silver rod? Or Love in a golden bowl?"
-      }
+      },
+      "gender": "m",
+      "moods": {
+        "neutral": {
+          "quality": 4.37
+        },
+        "happy": {
+          "quality": 4.38,
+          "strength": 0.13,
+          "source": {
+            "utterance_id": "908_31957_000013_000002",
+            "text": "Nay, I rather thrilled, Distrusting every light that seemed to gild The onward path, and feared to overlean A finger even."
+          }
+        },
+        "excited": {
+          "quality": 4.43,
+          "strength": 0.27,
+          "source": {
+            "utterance_id": "908_157963_000010_000000",
+            "text": "O life of this our spring! why fades the lotus of the water? Why fade these children of the spring?"
+          }
+        }
+      },
+      "pitch_band": "mid",
+      "tone": "smooth",
+      "pace_band": "normal"
     }
-  ]
+  ],
+  "moods": [
+    "neutral",
+    "happy",
+    "sad",
+    "excited",
+    "calm",
+    "serious"
+  ],
+  "mood_lines": {
+    "neutral": "Here is the plan for today. We start at nine, and the meeting ends at noon.",
+    "happy": "Oh, this is wonderful news! I'm so glad it all worked out for you.",
+    "sad": "I'm sorry. I really thought we would see each other one more time.",
+    "excited": "We did it! I can't believe it, this is the best day ever!",
+    "calm": "Take a slow breath in, and let it go. There is nothing you need to do right now.",
+    "serious": "Listen carefully. This is important, and I need you to follow every step."
+  }
 }
