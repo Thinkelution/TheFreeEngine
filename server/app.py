@@ -148,12 +148,21 @@ CREATE TABLE IF NOT EXISTS music(
   status TEXT NOT NULL DEFAULT 'queued', error TEXT, created TEXT NOT NULL, started TEXT, finished TEXT);
 """)
 for _sql in ("ALTER TABLE users ADD COLUMN clones_used INTEGER DEFAULT 0",
-             "ALTER TABLE usage ADD COLUMN music INTEGER DEFAULT 0"):
+             "ALTER TABLE usage ADD COLUMN music INTEGER DEFAULT 0",
+             "ALTER TABLE voices ADD COLUMN mood TEXT DEFAULT 'neutral'"):
     try:
         _db.execute(_sql)
     except sqlite3.OperationalError:
         pass  # column already there
+_db.executescript("""
+CREATE TABLE IF NOT EXISTS voice_moods(
+  voice_id TEXT NOT NULL, mood TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'queued', error TEXT,
+  created TEXT NOT NULL, finished TEXT, PRIMARY KEY(voice_id, mood));
+""")
 (DATA / "music").mkdir(exist_ok=True)
+MOODS = ["neutral", "happy", "sad", "excited", "calm", "serious"]
+MOOD_RE = "^(" + "|".join(MOODS) + ")$"
+MAX_EXTRA_MOODS = int(os.environ.get("TFE_MAX_EXTRA_MOODS", "4"))  # extra mood clips per cloned voice, free
 
 
 def usage(uid: int) -> sqlite3.Row:
@@ -314,21 +323,44 @@ def load_catalog() -> dict:
     return {v["id"]: v for v in json.loads(p.read_text())["voices"]}
 
 
-def voice_state_for(vid: str, u: User):
+def _cached_state(key: str, path: Path):
+    if key not in _user_states:
+        _user_states[key] = state["model"].get_state_for_audio_prompt(str(path))
+        while len(_user_states) > 128:
+            _user_states.popitem(last=False)
+    _user_states.move_to_end(key)
+    return _user_states[key]
+
+
+def house_moods(vid: str) -> list[str]:
+    return list((state["catalog"].get(vid) or {}).get("moods", {"neutral": {}}).keys())
+
+
+def user_moods(row) -> list[str]:
+    extra = [r["mood"] for r in q("SELECT mood FROM voice_moods WHERE voice_id=? AND status='ready'", (row["id"],))]
+    return [row["mood"] or "neutral"] + [m for m in extra if m != (row["mood"] or "neutral")]
+
+
+def voice_state_for(vid: str, u: User, mood: str | None = None):
+    """Return (state, mood actually used). 'aria@happy' works too. Missing moods fall back to the voice's base."""
+    if "@" in vid:
+        vid, mood = vid.split("@", 1)
+    if mood and mood not in MOODS:
+        raise HTTPException(400, f"Unknown mood '{mood}'. Moods: {', '.join(MOODS)}.")
     if vid in state["house"]:
-        return state["house"][vid]
+        if mood and mood != "neutral" and mood in house_moods(vid):
+            return _cached_state(f"{vid}@{mood}", VOICES / f"{vid}@{mood}.safetensors"), mood
+        return state["house"][vid], "neutral"
     if not (vid.startswith("u_") and VOICE_ID.match(vid)):
         raise HTTPException(404, f"Unknown voice '{vid}'. See GET /v1/voices.")
-    row = q1("SELECT owner_id, visibility, status, hidden FROM voices WHERE id=?", (vid,))
+    row = q1("SELECT id, owner_id, visibility, status, hidden, mood FROM voices WHERE id=?", (vid,))
     if not row or row["status"] != "ready" or not (
             row["owner_id"] == u.id or (row["visibility"] == "public" and not row["hidden"])):
         raise HTTPException(404, f"Unknown voice '{vid}'.")
-    if vid not in _user_states:
-        _user_states[vid] = state["model"].get_state_for_audio_prompt(str(DATA / "voices" / f"{vid}.safetensors"))
-        while len(_user_states) > 64:
-            _user_states.popitem(last=False)
-    _user_states.move_to_end(vid)
-    return _user_states[vid]
+    base = row["mood"] or "neutral"
+    if mood and mood != base and mood in user_moods(row):
+        return _cached_state(f"{vid}@{mood}", DATA / "voices" / f"{vid}@{mood}.safetensors"), mood
+    return _cached_state(vid, DATA / "voices" / f"{vid}.safetensors"), base
 
 
 def synth(vs, text: str) -> np.ndarray:
@@ -352,12 +384,60 @@ def encode(audio: np.ndarray, sr: int, fmt: str) -> tuple[bytes, str]:
 _wake = threading.Event()
 
 
+MOOD_SAMPLE = {
+    "neutral": SAMPLE_TEXT,
+    "happy": "Oh, this is wonderful news! I'm so glad it all worked out.",
+    "sad": "I'm sorry. I really thought we would see each other one more time.",
+    "excited": "We did it! I can't believe it, this is the best day ever!",
+    "calm": "Take a slow breath in, and let it go. There is nothing you need to do right now.",
+    "serious": "Listen carefully. This is important, and I need you to follow every step.",
+}
+
+
+def _make_voice(ref: Path, key: str, mood: str):
+    with gate:
+        vs = state["model"].get_state_for_audio_prompt(str(ref))
+    export_model_state(vs, str(DATA / "voices" / f"{key}.safetensors"))
+    audio = synth(vs, MOOD_SAMPLE.get(mood, SAMPLE_TEXT))
+    mp3, _ = encode(audio, state["model"].sample_rate, "mp3")
+    (DATA / "samples" / f"{key}.mp3").write_bytes(mp3)
+    ref.unlink(missing_ok=True)
+    _user_states.pop(key, None)
+
+
+def _mood_job():
+    """Process one queued extra-mood clip. Returns True if there was one."""
+    row = q1("SELECT m.*, v.name, v.owner_id, u.email FROM voice_moods m JOIN voices v ON v.id=m.voice_id "
+             "JOIN users u ON u.id=v.owner_id WHERE m.status='queued' ORDER BY m.created LIMIT 1")
+    if not row:
+        return False
+    vid, mood = row["voice_id"], row["mood"]
+    ex("UPDATE voice_moods SET status='processing' WHERE voice_id=? AND mood=?", (vid, mood))
+    try:
+        _make_voice(DATA / "uploads" / f"{vid}@{mood}.wav", f"{vid}@{mood}", mood)
+        ex("UPDATE voice_moods SET status='ready', finished=?, error=NULL WHERE voice_id=? AND mood=?", (now_iso(), vid, mood))
+        link = f"{BASE_URL}/#/clone"
+        send_email(row["email"], f"\"{row['name']}\" can now sound {mood}",
+                   f"The {mood} version of your voice \"{row['name']}\" is ready. Use mood=\"{mood}\" with voice {vid}.",
+                   email_html(f"New mood ready: {mood}", [f"<b>{row['name']}</b> now has a <b>{mood}</b> version.",
+                                                          f"In the API, send <code>\"voice\": \"{vid}\", \"mood\": \"{mood}\"</code>."],
+                              ("Try it", link)))
+    except Exception as e:  # noqa: BLE001
+        log.exception("mood %s@%s failed", vid, mood)
+        ex("UPDATE voice_moods SET status='failed', error=?, finished=? WHERE voice_id=? AND mood=?",
+           (str(e)[:300], now_iso(), vid, mood))
+    return True
+
+
 def clone_worker():
     ex("UPDATE voices SET status='queued' WHERE status='processing'")
+    ex("UPDATE voice_moods SET status='queued' WHERE status='processing'")
     while True:
         row = q1("SELECT v.*, u.email FROM voices v JOIN users u ON u.id=v.owner_id "
                  "WHERE v.status='queued' ORDER BY v.created LIMIT 1")
         if not row:
+            if _mood_job():
+                continue
             _wake.wait(10)
             _wake.clear()
             continue
@@ -365,14 +445,8 @@ def clone_worker():
         ex("UPDATE voices SET status='processing' WHERE id=?", (vid,))
         ref = DATA / "uploads" / f"{vid}.wav"
         try:
-            with gate:
-                vs = state["model"].get_state_for_audio_prompt(str(ref))
-            export_model_state(vs, str(DATA / "voices" / f"{vid}.safetensors"))
-            audio = synth(vs, SAMPLE_TEXT)
-            mp3, _ = encode(audio, state["model"].sample_rate, "mp3")
-            (DATA / "samples" / f"{vid}.mp3").write_bytes(mp3)
+            _make_voice(ref, vid, row["mood"] or "neutral")
             ex("UPDATE voices SET status='ready', finished=?, error=NULL WHERE id=?", (now_iso(), vid))
-            ref.unlink(missing_ok=True)
             link = f"{BASE_URL}/#/studio"
             send_email(row["email"], f"Your voice \"{row['name']}\" is ready",
                        f"Your cloned voice \"{row['name']}\" is ready. Voice ID: {vid}\nTry it: {link}",
@@ -546,9 +620,15 @@ def reset(body: ResetBody, req: Request, resp: Response):
 
 # ---------------------------------------------------------------- account routes
 def _voice_out(r: sqlite3.Row, mine=False) -> dict:
+    base = r["mood"] or "neutral"
+    moods = user_moods(r) if r["status"] == "ready" else [base]
     d = {"id": r["id"], "name": r["name"], "type": "community", "visibility": r["visibility"],
+         "mood": base, "moods": moods,
+         "samples": {m: f"/api/voices/{r['id']}/sample" + ("" if m == base else f"?mood={m}") for m in moods},
          "sample": f"/api/voices/{r['id']}/sample" if r["status"] == "ready" else None}
     if mine:
+        d["mood_jobs"] = [dict(x) for x in q("SELECT mood, status, error FROM voice_moods WHERE voice_id=? "
+                                             "ORDER BY created", (r["id"],))]
         d.update(status=r["status"], error=r["error"], created=r["created"], hidden=bool(r["hidden"]))
         if r["status"] == "queued":
             d["queue_position"] = q1("SELECT COUNT(*) n FROM voices WHERE status='queued' AND created<=?",
@@ -590,26 +670,50 @@ def delete_key(kid: int, u: User = Depends(session_user)):
     return {"ok": True}
 
 
+def _house_out(v: dict) -> dict:
+    moods = list(v.get("moods", {"neutral": {}}).keys())
+    return {"id": v["id"], "name": v["id"].title(), "type": "house", "gender": v.get("gender"),
+            "pitch": v.get("pitch"), "pitch_band": v.get("pitch_band"), "tone": v.get("tone"),
+            "pace": v.get("pace"), "pace_band": v.get("pace_band"), "quality": v.get("quality"),
+            "mood": "neutral", "moods": moods,
+            "samples": {m: f"/samples/{v['id']}.mp3" if m == "neutral" else f"/samples/{v['id']}@{m}.mp3" for m in moods},
+            "sample": f"/samples/{v['id']}.mp3"}
+
+
 @app.get("/api/voices")
-def public_voices():
-    house = [{"id": v["id"], "name": v["id"].title(), "type": "house", "pitch": v.get("pitch"),
-              "quality": v.get("quality"), "pace": v.get("pace"), "sample": f"/samples/{v['id']}.mp3"}
-             for v in state["catalog"].values()]
+def public_voices(mood: str | None = None, tone: str | None = None, gender: str | None = None,
+                  pitch: str | None = None):
+    house = [_house_out(v) for v in state["catalog"].values()]
     community = [_voice_out(r) for r in q("SELECT * FROM voices WHERE visibility='public' AND status='ready' "
                                           "AND hidden=0 ORDER BY finished DESC LIMIT 500")]
-    return {"voices": house + community}
+    out = house + community
+    if mood:
+        out = [v for v in out if mood in v["moods"]]
+    if tone:
+        out = [v for v in out if v.get("tone") == tone]
+    if gender:
+        out = [v for v in out if v.get("gender") == gender[:1].lower()]
+    if pitch:
+        out = [v for v in out if pitch in (v.get("pitch_band"), v.get("pitch"))]
+    return {"voices": out, "moods": MOODS, "tones": ["warm", "bright", "deep", "smooth"]}
 
 
 @app.get("/api/voices/{vid}/sample")
-def voice_sample(vid: str, req: Request):
-    row = q1("SELECT owner_id, visibility, hidden, status FROM voices WHERE id=?", (vid,))
+def voice_sample(vid: str, req: Request, mood: str | None = None):
+    row = q1("SELECT owner_id, visibility, hidden, status, mood FROM voices WHERE id=?", (vid,))
     if not row or row["status"] != "ready":
         raise HTTPException(404, "Not found.")
     if row["visibility"] != "public" or row["hidden"]:
         u = _session_user(req)
         if not u or (u.id != row["owner_id"] and not u.is_admin):
             raise HTTPException(404, "Not found.")
-    return FileResponse(DATA / "samples" / f"{vid}.mp3", media_type="audio/mpeg")
+    if mood and mood not in MOODS:
+        raise HTTPException(404, "Not found.")
+    name = vid if not mood or mood == (row["mood"] or "neutral") else f"{vid}@{mood}"
+    path = DATA / "samples" / f"{name}.mp3"
+    if not path.exists():
+        raise HTTPException(404, "Not found.")
+    return FileResponse(path, media_type="audio/mpeg")
 
 
 @app.get("/api/me/voices")
@@ -618,47 +722,108 @@ def my_voices(u: User = Depends(session_user)):
                        q("SELECT * FROM voices WHERE owner_id=? ORDER BY created DESC", (u.id,))]}
 
 
-async def _queue_clone(u: User, file: UploadFile, name: str, visibility: str, consent: str) -> dict:
+def _save_upload(raw: bytes, out: Path):
+    """Normalize an uploaded recording to 24 kHz mono WAV (max 30 s). ffmpeg rejects non-audio."""
+    if len(raw) > MAX_UPLOAD:
+        raise HTTPException(413, "Audio file is over 10 MB.")
+    with tempfile.TemporaryDirectory() as d:
+        src = Path(d) / "in"
+        src.write_bytes(raw)
+        r = subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(src), "-t", "30", "-ac", "1", "-ar", "24000",
+                            "-af", "silenceremove=start_periods=1:start_threshold=-45dB", str(out)],
+                           capture_output=True)
+        if r.returncode != 0 or not out.exists():
+            raise HTTPException(400, "We could not read that audio file. Try WAV, MP3, M4A or WebM.")
+        if out.stat().st_size / (24000 * 2) < 4:
+            out.unlink(missing_ok=True)
+            raise HTTPException(400, "The recording is too short. Use 10 to 20 seconds of speech.")
+
+
+def _check_consent(consent: str):
     if consent.lower() not in ("yes", "true", "1", "on"):
         raise HTTPException(400, "Please confirm you have the speaker's permission (consent=yes).")
+
+
+def _check_mood(mood: str) -> str:
+    mood = (mood or "neutral").strip().lower()
+    if mood not in MOODS:
+        raise HTTPException(400, f"mood must be one of: {', '.join(MOODS)}.")
+    return mood
+
+
+async def _queue_clone(u: User, file: UploadFile, name: str, visibility: str, consent: str,
+                       mood: str = "neutral") -> dict:
+    _check_consent(consent)
+    mood = _check_mood(mood)
     if visibility not in ("public", "private"):
         raise HTTPException(400, "visibility must be 'public' or 'private'.")
     name = name.strip()[:60] or "My voice"
     if usage(u.id)["clones_used"] >= CLONES_PER_ACCOUNT:
         raise HTTPException(429, f"The free plan includes {CLONES_PER_ACCOUNT} voice clone per account. "
-                                 "More clones come with Premium (coming soon).")
+                                 "You can still add mood clips to your voice. More clones come with Premium (coming soon).")
     if q1("SELECT COUNT(*) n FROM voices WHERE owner_id=? AND status!='failed'", (u.id,))["n"] >= MAX_USER_VOICES:
         raise HTTPException(409, f"You can keep up to {MAX_USER_VOICES} voices. Delete one first.")
     raw = await file.read(MAX_UPLOAD + 1)
-    if len(raw) > MAX_UPLOAD:
-        raise HTTPException(413, "Audio file is over 10 MB.")
     vid = "u_" + uuid.uuid4().hex[:16]
-    with tempfile.TemporaryDirectory() as d:
-        src = Path(d) / "in"
-        src.write_bytes(raw)
-        out = DATA / "uploads" / f"{vid}.wav"
-        r = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", str(src), "-t", "30", "-ac", "1", "-ar", "24000",
-                            "-af", "silenceremove=start_periods=1:start_threshold=-45dB", str(out)],
-                           capture_output=True)
-        if r.returncode != 0 or not out.exists():
-            raise HTTPException(400, "We could not read that audio file. Try WAV, MP3, M4A or WebM.")
-        secs = out.stat().st_size / (24000 * 2)
-        if secs < 4:
-            out.unlink(missing_ok=True)
-            raise HTTPException(400, "The recording is too short. Use 10 to 20 seconds of speech.")
-    ex("INSERT INTO voices(id, owner_id, name, visibility, created) VALUES(?,?,?,?,?)",
-       (vid, u.id, name, visibility, now_iso()))
+    _save_upload(raw, DATA / "uploads" / f"{vid}.wav")
+    ex("INSERT INTO voices(id, owner_id, name, visibility, created, mood) VALUES(?,?,?,?,?,?)",
+       (vid, u.id, name, visibility, now_iso(), mood))
     charge(u.id, clones=1)
     _wake.set()
     pos = q1("SELECT COUNT(*) n FROM voices WHERE status IN ('queued','processing')")["n"]
-    return {"voice": vid, "name": name, "status": "queued", "queue_position": pos,
+    return {"voice": vid, "name": name, "mood": mood, "status": "queued", "queue_position": pos,
             "message": "You're in the queue. We'll email you when your voice is ready."}
+
+
+async def _queue_mood(u: User, vid: str, file: UploadFile, mood: str, consent: str) -> dict:
+    _check_consent(consent)
+    mood = _check_mood(mood)
+    row = q1("SELECT id, mood, status FROM voices WHERE id=? AND owner_id=?", (vid, u.id))
+    if not row:
+        raise HTTPException(404, "Not found.")
+    if row["status"] == "failed":
+        raise HTTPException(409, "This voice failed to clone. Delete it and try again.")
+    if mood == (row["mood"] or "neutral"):
+        raise HTTPException(409, f"This voice is already {mood}. Pick another mood.")
+    have = q1("SELECT status FROM voice_moods WHERE voice_id=? AND mood=?", (vid, mood))
+    if have and have["status"] in ("queued", "processing"):
+        raise HTTPException(409, f"The {mood} clip is already in the queue.")
+    n = q1("SELECT COUNT(*) n FROM voice_moods WHERE voice_id=? AND mood!=? AND status!='failed'", (vid, mood))["n"]
+    if n >= MAX_EXTRA_MOODS:
+        raise HTTPException(409, f"A voice can have up to {MAX_EXTRA_MOODS} extra moods. Replace one instead.")
+    raw = await file.read(MAX_UPLOAD + 1)
+    _save_upload(raw, DATA / "uploads" / f"{vid}@{mood}.wav")
+    ex("INSERT INTO voice_moods(voice_id, mood, created) VALUES(?,?,?) ON CONFLICT(voice_id, mood) DO UPDATE "
+       "SET status='queued', error=NULL, created=excluded.created, finished=NULL", (vid, mood, now_iso()))
+    _wake.set()
+    return {"voice": vid, "mood": mood, "status": "queued",
+            "message": f"Your {mood} clip is in the queue. We'll email you when it's ready."}
+
+
+@app.post("/api/me/voices/{vid}/moods")
+async def add_mood_web(vid: str, file: UploadFile = File(...), mood: str = Form(...), consent: str = Form(""),
+                       u: User = Depends(session_user)):
+    return await _queue_mood(u, vid, file, mood, consent)
+
+
+@app.delete("/api/me/voices/{vid}/moods/{mood}")
+def delete_mood(vid: str, mood: str, u: User = Depends(session_user)):
+    if mood not in MOODS or not q1("SELECT 1 FROM voices WHERE id=? AND owner_id=?", (vid, u.id)):
+        raise HTTPException(404, "Not found.")
+    if not q1("SELECT 1 FROM voice_moods WHERE voice_id=? AND mood=? AND status!='processing'", (vid, mood)):
+        raise HTTPException(404, "Not found, or still processing.")
+    ex("DELETE FROM voice_moods WHERE voice_id=? AND mood=?", (vid, mood))
+    for p in (DATA / "voices" / f"{vid}@{mood}.safetensors", DATA / "samples" / f"{vid}@{mood}.mp3",
+              DATA / "uploads" / f"{vid}@{mood}.wav"):
+        p.unlink(missing_ok=True)
+    _user_states.pop(f"{vid}@{mood}", None)
+    return {"ok": True}
 
 
 @app.post("/api/me/voices")
 async def clone_web(file: UploadFile = File(...), name: str = Form(...), visibility: str = Form("private"),
-                    consent: str = Form(""), u: User = Depends(session_user)):
-    return await _queue_clone(u, file, name, visibility, consent)
+                    consent: str = Form(""), mood: str = Form("neutral"), u: User = Depends(session_user)):
+    return await _queue_clone(u, file, name, visibility, consent, mood)
 
 
 class VoicePatch(BaseModel):
@@ -682,30 +847,36 @@ def delete_voice(vid: str, u: User = Depends(session_user)):
     if not q1("SELECT 1 FROM voices WHERE id=? AND owner_id=? AND status!='processing'", (vid, u.id)):
         raise HTTPException(404, "Not found, or still processing.")
     ex("DELETE FROM voices WHERE id=?", (vid,))
-    for p in (DATA / "voices" / f"{vid}.safetensors", DATA / "samples" / f"{vid}.mp3", DATA / "uploads" / f"{vid}.wav"):
-        p.unlink(missing_ok=True)
-    _user_states.pop(vid, None)
+    ex("DELETE FROM voice_moods WHERE voice_id=?", (vid,))
+    for sub, ext in (("voices", "safetensors"), ("samples", "mp3"), ("uploads", "wav")):
+        for p in [DATA / sub / f"{vid}.{ext}", *(DATA / sub).glob(f"{vid}@*.{ext}")]:
+            p.unlink(missing_ok=True)
+    for k in [k for k in _user_states if k == vid or k.startswith(vid + "@")]:
+        _user_states.pop(k, None)
     return {"ok": True}
 
 
 # ---------------------------------------------------------------- public API (v1)
 class TTSRequest(BaseModel):
     text: str = Field(min_length=1, max_length=5000)
-    voice: str = Field(default="aria", max_length=40)
+    voice: str = Field(default="aria", max_length=60)
+    mood: str | None = Field(default=None, pattern=MOOD_RE)
     format: str = Field(default="mp3", pattern="^(mp3|wav)$")
 
 
 @app.get("/v1/health")
 def health():
     return {"ok": True, "voices": len(state.get("house", {})),
+            "mood_versions": sum(len(house_moods(v)) - 1 for v in state.get("catalog", {})),
             "clone_queue": q1("SELECT COUNT(*) n FROM voices WHERE status IN ('queued','processing')")["n"],
             "music_queue": q1("SELECT COUNT(*) n FROM music WHERE status IN ('queued','processing')")["n"]}
 
 
 @app.get("/v1/voices")
-def v1_voices(u: User = Depends(api_user)):
+def v1_voices(mood: str | None = None, tone: str | None = None, gender: str | None = None, pitch: str | None = None,
+              u: User = Depends(api_user)):
     mine = [_voice_out(r, mine=True) for r in q("SELECT * FROM voices WHERE owner_id=? ORDER BY created DESC", (u.id,))]
-    return {"voices": public_voices()["voices"], "mine": mine}
+    return {**public_voices(mood=mood, tone=tone, gender=gender, pitch=pitch), "mine": mine}
 
 
 @app.post("/v1/tts")
@@ -715,17 +886,24 @@ async def v1_tts(body: TTSRequest, u: User = Depends(api_user)):
         raise HTTPException(413, f"Text is over {MAX_CHARS} characters. Split it into parts.")
     if usage(u.id)["chars"] + len(text) > DAILY_CHARS:
         raise HTTPException(429, f"You used today's {DAILY_CHARS} free characters. More tomorrow!")
-    vs = voice_state_for(body.voice, u)
+    vs, used = await asyncio.to_thread(voice_state_for, body.voice, u, body.mood)
     audio = await asyncio.to_thread(synth, vs, text)
     charge(u.id, chars=len(text))
     data, mime = await asyncio.to_thread(encode, audio, state["model"].sample_rate, body.format)
-    return Response(data, media_type=mime, headers={"Cache-Control": "no-store"})
+    return Response(data, media_type=mime, headers={"Cache-Control": "no-store", "X-TFE-Mood": used,
+                                                    "Access-Control-Expose-Headers": "X-TFE-Mood"})
 
 
 @app.post("/v1/voices/clone")
 async def v1_clone(file: UploadFile = File(...), name: str = Form(...), visibility: str = Form("private"),
-                   consent: str = Form(""), u: User = Depends(api_user)):
-    return await _queue_clone(u, file, name, visibility, consent)
+                   consent: str = Form(""), mood: str = Form("neutral"), u: User = Depends(api_user)):
+    return await _queue_clone(u, file, name, visibility, consent, mood)
+
+
+@app.post("/v1/voices/{vid}/moods")
+async def v1_add_mood(vid: str, file: UploadFile = File(...), mood: str = Form(...), consent: str = Form(""),
+                      u: User = Depends(api_user)):
+    return await _queue_mood(u, vid, file, mood, consent)
 
 
 @app.get("/v1/voices/{vid}")
