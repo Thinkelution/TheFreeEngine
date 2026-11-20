@@ -759,6 +759,9 @@ async function route() {
   const name = (location.hash.replace(/^#\/?/, "").split("?")[0] || "home");
   if (name === "voices") { location.hash = "#/"; return; }
   const fn = pages[name] || pages.home;
+  const T = { home: "Free Text-to-Speech API, Voice Cloning & AI Music", studio: "Studio", clone: "Free Voice Cloning", music: "Free AI Music Generator",
+    docs: "Text-to-Speech API Docs", login: "Log in", signup: "Sign up free", admin: "Admin" };
+  document.title = `${T[name] || T.home} | The Free Engine`;
   for (const a of $$("#nav a")) a.classList.toggle("on", a.dataset.r === name);
   try { await fn(); } catch (e) { view.innerHTML = `<div class="auth card"><h1>Oops</h1><p class="muted">${esc(e.message)}</p></div>`; }
   if (!location.hash.includes("voices")) window.scrollTo({ top: 0 });
