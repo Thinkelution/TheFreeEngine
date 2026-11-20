@@ -86,6 +86,8 @@ EOF
 
 # Waveform bars for the voice cards, then make the release world-readable.
 $APP/venv/bin/python "$REL/deploy/make_peaks.py" "$REL/web/samples" "$REL/web/peaks.json"
+# Crawlable voice list, sitemap.xml, robots.txt.
+$APP/venv/bin/python "$REL/deploy/make_seo.py" "$REL/voices/catalog.json" "$REL/web"
 # Version the CSS/JS links so browsers and Cloudflare never serve an old copy after a deploy.
 for f in app.js app.css; do
   v=$(sha256sum "$REL/web/$f" | cut -c1-10)
@@ -107,6 +109,13 @@ for GROUP in "thefreeengine.site www.thefreeengine.site" "freeengine.thinkelutio
     nginx -t && systemctl reload nginx
   fi
 done
+# One address for search engines: www -> apex (301), on the HTTPS server block.
+S=/etc/nginx/sites-available/thefreeengine.site
+if [ -f $S ] && ! grep -q 'www.thefreeengine.site) { return 301' $S; then
+  cp $S /tmp/thefreeengine.site.bak
+  awk '/listen 443 ssl/ && !done { print "    if ($host = www.thefreeengine.site) { return 301 https://thefreeengine.site$request_uri; }"; done=1 } { print }' $S > $S.new && mv $S.new $S
+  nginx -t && systemctl reload nginx || { cp /tmp/thefreeengine.site.bak $S; systemctl reload nginx; echo "www redirect FAILED, reverted"; }
+fi
 
 cat > /etc/systemd/system/freeengine-music.service <<EOF
 [Unit]
