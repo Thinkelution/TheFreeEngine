@@ -81,3 +81,27 @@ Send the key as `Authorization: Bearer <key>`.
 ./deploy/deploy.ps1 -SetMailKey  # also (re)write the MailerSend key from F:/work/keys.txt
 ```n
 Secrets live in `/etc/freeengine.env` (mode 600). Data lives in `/var/lib/freeengine`. Admin: `TFE_ADMIN_EMAILS`.
+
+## MCP (AI agents)
+
+`POST /mcp` is a Model Context Protocol server (streamable HTTP, stateless, JSON responses).
+It uses the same API key as the REST API.
+
+| Tool | Does |
+|---|---|
+| `list_voices` | Voices with gender, tone, pitch and moods (optional filters) |
+| `text_to_speech` | Speech as inline audio plus a download link valid 1 hour |
+| `make_music` / `music_status` | Queue an instrumental track, then get its link |
+| `voice_status` | Status of one of your cloned voices |
+| `get_usage` | Today's use and limits |
+
+Client config:
+
+```json
+{ "mcpServers": { "the-free-engine": { "type": "http", "url": "https://thefreeengine.site/mcp",
+  "headers": { "Authorization": "Bearer YOUR_TFE_KEY" } } } }
+```
+
+Stdio-only clients: `npx -y mcp-remote https://thefreeengine.site/mcp --header "Authorization: Bearer YOUR_TFE_KEY"`
+
+Tests: `server/mcp_test.sh` (curl, 18 checks) and `server/mcp_local_test.ps1` (official MCP Python SDK client).

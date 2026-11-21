@@ -992,6 +992,170 @@ def v1_music_audio(mid: str, u: User = Depends(api_user)):
     return FileResponse(path, media_type="audio/mpeg", filename=f"{mid}.mp3")
 
 
+# ---------------------------------------------------------------- MCP (Model Context Protocol) for AI agents
+# Streamable HTTP, stateless, JSON responses. Auth: the same API key (Authorization: Bearer tfe_...).
+MCP_FILES = DATA / "mcp_files"
+MCP_FILES.mkdir(exist_ok=True)
+MCP_FILE_TTL = 3600
+MCP_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"]
+MCP_TOOLS = [
+    {"name": "list_voices", "title": "List voices",
+     "description": "List voices you can use, with gender, tone, pitch and available moods. Filters are optional.",
+     "inputSchema": {"type": "object", "properties": {
+         "mood": {"type": "string", "enum": MOODS}, "gender": {"type": "string", "enum": ["f", "m"]},
+         "tone": {"type": "string", "enum": ["warm", "bright", "deep", "smooth"]},
+         "pitch": {"type": "string", "enum": ["high", "mid", "low"]}}}},
+    {"name": "text_to_speech", "title": "Text to speech",
+     "description": "Turn text (up to 1000 characters) into speech. Returns the audio and a download link valid for 1 hour. "
+                    "Pick a voice id from list_voices and optionally a mood.",
+     "inputSchema": {"type": "object", "required": ["text"], "properties": {
+         "text": {"type": "string", "maxLength": 1000}, "voice": {"type": "string", "default": "aria"},
+         "mood": {"type": "string", "enum": MOODS}, "format": {"type": "string", "enum": ["mp3", "wav"], "default": "mp3"},
+         "include_audio": {"type": "boolean", "default": True,
+                           "description": "Also return the audio inline (base64). Set false to get only the link."}}}},
+    {"name": "make_music", "title": "Make music",
+     "description": "Queue an instrumental music track from a text description (free: up to 30 s, 3 a day). "
+                    "Returns a track id; poll music_status.",
+     "inputSchema": {"type": "object", "required": ["prompt"], "properties": {
+         "prompt": {"type": "string", "maxLength": 300}, "duration": {"type": "integer", "minimum": 5, "maximum": 30, "default": 30}}}},
+    {"name": "music_status", "title": "Music track status",
+     "description": "Check a music track. When ready, returns a download link valid for 1 hour.",
+     "inputSchema": {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}}}},
+    {"name": "voice_status", "title": "Cloned voice status",
+     "description": "Check one of your cloned voices (queued, processing, ready) and its moods.",
+     "inputSchema": {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}}}},
+    {"name": "get_usage", "title": "Usage and limits", "description": "Today's usage and the free plan limits.",
+     "inputSchema": {"type": "object", "properties": {}}},
+]
+
+
+def _mcp_link(data: bytes, ext: str) -> str:
+    now = time.time()
+    for p in MCP_FILES.iterdir():
+        if now - p.stat().st_mtime > MCP_FILE_TTL:
+            p.unlink(missing_ok=True)
+    name = f"{secrets.token_urlsafe(18)}.{ext}"
+    (MCP_FILES / name).write_bytes(data)
+    return f"{BASE_URL}/v1/files/{name}"
+
+
+@app.get("/v1/files/{name}")
+def mcp_file(name: str):
+    p = MCP_FILES / name
+    if not re.fullmatch(r"[A-Za-z0-9_-]{20,40}\.(mp3|wav)", name) or not p.exists() or time.time() - p.stat().st_mtime > MCP_FILE_TTL:
+        raise HTTPException(404, "Not found or expired.")
+    return FileResponse(p, media_type="audio/mpeg" if name.endswith(".mp3") else "audio/wav",
+                        headers={"Cache-Control": "private, no-store"})
+
+
+def _text(obj) -> dict:
+    return {"type": "text", "text": obj if isinstance(obj, str) else json.dumps(obj, indent=1)}
+
+
+async def _mcp_call(u: User, name: str, a: dict) -> dict:
+    if name == "list_voices":
+        r = public_voices(mood=a.get("mood"), tone=a.get("tone"), gender=a.get("gender"), pitch=a.get("pitch"))
+        mine = [_voice_out(x, mine=True) for x in q("SELECT * FROM voices WHERE owner_id=? AND status='ready'", (u.id,))]
+        slim = [{k: v.get(k) for k in ("id", "name", "type", "gender", "tone", "pitch_band", "pace_band", "moods")}
+                for v in mine + r["voices"]]
+        return {"content": [_text({"count": len(slim), "moods": MOODS, "voices": slim})]}
+    if name == "text_to_speech":
+        body = TTSRequest(text=a.get("text", ""), voice=a.get("voice") or "aria", mood=a.get("mood"),
+                          format=a.get("format") or "mp3")
+        text = body.text.strip()
+        if len(text) > MAX_CHARS:
+            raise HTTPException(413, f"Text is over {MAX_CHARS} characters. Split it into parts.")
+        if usage(u.id)["chars"] + len(text) > DAILY_CHARS:
+            raise HTTPException(429, f"You used today's {DAILY_CHARS} free characters. More tomorrow!")
+        vs, used = await asyncio.to_thread(voice_state_for, body.voice, u, body.mood)
+        audio = await asyncio.to_thread(synth, vs, text)
+        charge(u.id, chars=len(text))
+        data, mime = await asyncio.to_thread(encode, audio, state["model"].sample_rate, body.format)
+        secs = round(len(audio) / state["model"].sample_rate, 1)
+        link = _mcp_link(data, body.format)
+        content = [_text({"voice": body.voice, "mood": used, "seconds": secs, "format": body.format,
+                          "download_url": link, "link_expires_in_seconds": MCP_FILE_TTL})]
+        if a.get("include_audio", True):
+            import base64
+            content.append({"type": "audio", "data": base64.b64encode(data).decode(), "mimeType": mime})
+        return {"content": content}
+    if name == "make_music":
+        r = _queue_music(u, MusicRequest(prompt=a.get("prompt", ""), duration=int(a.get("duration") or 30)))
+        return {"content": [_text(r)]}
+    if name == "music_status":
+        row = q1("SELECT * FROM music WHERE id=? AND owner_id=?", (a.get("id", ""), u.id))
+        if not row:
+            raise HTTPException(404, "Track not found.")
+        out = _music_out(row)
+        p = DATA / "music" / f"{row['id']}.mp3"
+        if row["status"] == "ready" and p.exists():
+            out["download_url"] = _mcp_link(p.read_bytes(), "mp3")
+            out.pop("audio", None)
+        return {"content": [_text(out)]}
+    if name == "voice_status":
+        row = q1("SELECT * FROM voices WHERE id=? AND owner_id=?", (a.get("id", ""), u.id))
+        if not row:
+            raise HTTPException(404, "Voice not found.")
+        return {"content": [_text(_voice_out(row, mine=True))]}
+    if name == "get_usage":
+        return {"content": [_text({"day": today(), **usage_out(usage(u.id))})]}
+    raise KeyError(name)
+
+
+def _rpc(id_, result=None, error=None):
+    m = {"jsonrpc": "2.0", "id": id_}
+    m.update({"error": error} if error else {"result": result})
+    return m
+
+
+@app.get("/mcp")
+def mcp_get():
+    return JSONResponse({"error": "Use POST (MCP streamable HTTP). See https://thefreeengine.site/#/docs"},
+                        status_code=405, headers={"Allow": "POST"})
+
+
+@app.post("/mcp")
+async def mcp(req: Request):
+    try:
+        msg = await req.json()
+    except Exception:  # noqa: BLE001
+        return JSONResponse(_rpc(None, error={"code": -32700, "message": "Parse error"}), status_code=400)
+    if isinstance(msg, list):
+        return JSONResponse(_rpc(None, error={"code": -32600, "message": "Batches are not supported"}), status_code=400)
+    method, id_, params = msg.get("method"), msg.get("id"), msg.get("params") or {}
+    if id_ is None:  # notification (e.g. notifications/initialized)
+        return Response(status_code=202)
+    if method == "initialize":
+        want = params.get("protocolVersion")
+        return _rpc(id_, {"protocolVersion": want if want in MCP_VERSIONS else MCP_VERSIONS[0],
+                          "capabilities": {"tools": {"listChanged": False}},
+                          "serverInfo": {"name": "the-free-engine", "title": "The Free Engine", "version": "1.0.0"},
+                          "instructions": "Free text-to-speech (60 voices, 6 moods) and instrumental music. "
+                                          "Call list_voices to pick a voice, then text_to_speech."})
+    if method == "ping":
+        return _rpc(id_, {})
+    try:
+        u = api_user(req)
+    except HTTPException as e:
+        return JSONResponse(_rpc(id_, error={"code": -32001, "message": e.detail}), status_code=401,
+                            headers={"WWW-Authenticate": 'Bearer realm="The Free Engine"'})
+    if method == "tools/list":
+        return _rpc(id_, {"tools": MCP_TOOLS})
+    if method == "tools/call":
+        name = params.get("name")
+        try:
+            return _rpc(id_, await _mcp_call(u, name, params.get("arguments") or {}))
+        except KeyError:
+            return _rpc(id_, error={"code": -32602, "message": f"Unknown tool: {name}"})
+        except HTTPException as e:
+            return _rpc(id_, {"content": [_text(f"Error: {e.detail}")], "isError": True})
+        except Exception as e:  # noqa: BLE001  (pydantic validation etc.)
+            return _rpc(id_, {"content": [_text(f"Error: {str(e)[:300]}")], "isError": True})
+    if method in ("resources/list", "prompts/list"):
+        return _rpc(id_, {method.split("/")[0]: []})
+    return _rpc(id_, error={"code": -32601, "message": f"Method not found: {method}"})
+
+
 # ---------------------------------------------------------------- admin
 @app.get("/api/admin/stats")
 def admin_stats(_: User = Depends(admin_user)):
