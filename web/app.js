@@ -471,6 +471,18 @@ curl ${o}/v1/voices/u_…/moods -H "Authorization: Bearer $TFE_KEY" \\
 curl ${o}/v1/music/m_… -H "Authorization: Bearer $TFE_KEY"          # queued → processing → ready
 curl ${o}/v1/music/m_…/audio -H "Authorization: Bearer $TFE_KEY" -o track.mp3</code></pre>
       <p class="muted small">Music powered by Stability AI.</p>
+      <h3>Use with AI agents (MCP)</h3><p class="muted">Connect any MCP client (Claude, Cursor, Kiro, VS Code and others) to <code>${o}/mcp</code> with your API key.
+      Tools: <code>list_voices</code>, <code>text_to_speech</code> (returns audio plus a 1-hour download link), <code>make_music</code>, <code>music_status</code>, <code>voice_status</code>, <code>get_usage</code>.</p>
+<pre><code>{
+  "mcpServers": {
+    "the-free-engine": {
+      "type": "http",
+      "url": "${o}/mcp",
+      "headers": { "Authorization": "Bearer YOUR_TFE_KEY" }
+    }
+  }
+}</code></pre>
+      <p class="muted small">Client only supports local (stdio) servers? Use the bridge: <code>npx -y mcp-remote ${o}/mcp --header "Authorization: Bearer YOUR_TFE_KEY"</code></p>
       <h3>Errors</h3><div class="card tblwrap"><table class="tbl"><tr><th>Code</th><th>Meaning</th></tr><tr><td>401</td><td>Missing or wrong key</td></tr><tr><td>404</td><td>Unknown voice</td></tr>
       <tr><td>413</td><td>Text over 1,000 chars, or file over 10 MB</td></tr><tr><td>429</td><td>Daily limit reached</td></tr></table></div>
       <p class="muted small" style="margin-top:18px">Errors come back as <code>{"error": "…"}</code>. Full schema: <a href="/v1/docs">/v1/docs</a>.</p>
