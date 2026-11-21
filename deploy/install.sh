@@ -109,6 +109,15 @@ for GROUP in "thefreeengine.site www.thefreeengine.site" "freeengine.thinkelutio
     nginx -t && systemctl reload nginx
   fi
 done
+# Route /mcp to the app on the existing (certbot-managed) site files.
+for MAIN in thefreeengine.site freeengine.thinkelution.com; do
+  S=/etc/nginx/sites-available/$MAIN
+  if [ -f $S ] && grep -q 'location ~ \^/(v1|api|auth)/ {' $S; then
+    cp $S /tmp/$MAIN.bak
+    sed -i 's#location ~ ^/(v1|api|auth)/ {#location ~ ^/(v1|api|auth|mcp)(/|$) {#' $S
+    nginx -t && systemctl reload nginx || { cp /tmp/$MAIN.bak $S; systemctl reload nginx; echo "mcp route FAILED for $MAIN, reverted"; }
+  fi
+done
 # One address for search engines: www -> apex (301), on the HTTPS server block.
 S=/etc/nginx/sites-available/thefreeengine.site
 if [ -f $S ] && ! grep -q 'www.thefreeengine.site) { return 301' $S; then
