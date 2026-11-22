@@ -388,6 +388,27 @@ const pages = {
           <li><div><b>Join the queue</b><div class="muted small">Free clones are made in order. You can see your place.</div></div></li>
           <li><div><b>Get an email</b><div class="muted small">We email you when it's ready to use.</div></div></li>
           <li><div><b>Private or public</b><div class="muted small">Private voices only work in your account. Public ones join the library.</div></div></li></ol></div></section>
+      <section class="wrap" id="mcp"><div class="card callout mcpcall"><div>
+        <span class="tag a">New · MCP</span><h2 style="margin-top:12px">Use it from your AI agent</h2>
+        <p class="muted">The Free Engine is an MCP server, using the Model Context Protocol. Plug it into Claude, Cursor, VS Code, Kiro or any MCP client.
+        Then just ask: <i>"Read this script in June's excited voice."</i> The agent picks a voice and mood and hands you the audio.</p>
+        <div class="ctas" style="justify-content:flex-start"><a class="btn pri" href="#/mcp">Setup guide</a>${S.me ? '<a class="btn" href="#/studio">Get your key</a>' : '<a class="btn" href="#/signup">Get a free key</a>'}</div></div>
+<pre><code>{
+  "mcpServers": {
+    "the-free-engine": {
+      "type": "http",
+      "url": "${location.origin}/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_TFE_KEY"
+      }
+    }
+  }
+}</code></pre></div>
+        <div class="feat" style="margin-top:14px">
+          <div class="card"><h3>🗣️ text_to_speech</h3><p>Any voice, any mood. Returns audio plus a 1-hour link.</p></div>
+          <div class="card"><h3>🎭 list_voices</h3><p>Filter by mood, gender, tone and pitch.</p></div>
+          <div class="card"><h3>🎵 make_music</h3><p>Queue an instrumental track, then fetch it.</p></div>
+          <div class="card"><h3>📊 get_usage</h3><p>See today's use and free limits.</p></div></div></section>
       <section class="wrap"><div class="cols"><div><h2>Three lines to speech</h2><p class="muted">Get a key in the studio, then:</p>
 <pre><code>curl ${location.origin}/v1/tts \\
   -H "Authorization: Bearer $TFE_KEY" \\
@@ -600,6 +621,56 @@ async function renderTracks() {
   }
 }
 
+pages.mcp = async function () {
+  const o = location.origin, url = `${o}/mcp`, K = "YOUR_TFE_KEY";
+  const json = (obj) => esc(JSON.stringify(obj, null, 2));
+  const std = { mcpServers: { "the-free-engine": { type: "http", url, headers: { Authorization: `Bearer ${K}` } } } };
+  const bridge = { mcpServers: { "the-free-engine": { command: "npx", args: ["-y", "mcp-remote", url, "--header", `Authorization: Bearer ${K}`] } } };
+  const clients = [
+    ["claude-code", "Claude Code", `<p class="muted">Run once in a terminal:</p><pre><code>claude mcp add --transport http the-free-engine ${url} \\\n  --header "Authorization: Bearer ${K}"</code></pre>`],
+    ["claude-desktop", "Claude Desktop", `<p class="muted">Settings → Developer → Edit config. This opens <code>claude_desktop_config.json</code>. Add the block below, then restart Claude.</p><pre><code>${json(bridge)}</code></pre><p class="muted small">Needs Node.js 18+ for <code>npx</code>.</p>`],
+    ["cursor", "Cursor", `<p class="muted">Settings → MCP → Add new server, or edit <code>~/.cursor/mcp.json</code>:</p><pre><code>${json({ mcpServers: { "the-free-engine": { url, headers: { Authorization: `Bearer ${K}` } } } })}</code></pre>`],
+    ["vscode", "VS Code", `<p class="muted">Put this in <code>.vscode/mcp.json</code> in your project, then start it from the MCP view. VS Code asks for the key once and keeps it safe.</p><pre><code>${json({ inputs: [{ type: "promptString", id: "tfe-key", description: "The Free Engine API key", password: true }], servers: { "the-free-engine": { type: "http", url, headers: { Authorization: "Bearer ${input:tfe-key}" } } } })}</code></pre>`],
+    ["kiro", "Kiro", `<p class="muted">Add to <code>.kiro/settings/mcp.json</code> (or the user-level one in <code>~/.kiro/settings/</code>):</p><pre><code>${json(bridge)}</code></pre>`],
+    ["other", "Other clients", `<p class="muted">Any client that supports remote (streamable HTTP) MCP servers:</p><pre><code>${json(std)}</code></pre><p class="muted">Local-only (stdio) client? Use the <code>mcp-remote</code> bridge:</p><pre><code>npx -y mcp-remote ${url} --header "Authorization: Bearer ${K}"</code></pre>`],
+  ];
+  const tools = [
+    ["text_to_speech", "text*, voice, mood, format, include_audio", "Speech as audio, plus a download link valid 1 hour"],
+    ["list_voices", "mood, gender, tone, pitch", "Voices you can use, with their moods"],
+    ["make_music", "prompt*, duration (5–30)", "Queues a track and returns its id"],
+    ["music_status", "id*", "Status, and a download link when ready"],
+    ["voice_status", "id*", "Status and moods of your cloned voice"],
+    ["get_usage", "—", "Today's use and free limits"],
+  ];
+  view.innerHTML = `<div class="wrap page fade" style="max-width:920px">
+    <span class="tag a">MCP · Model Context Protocol</span><h1 style="margin-top:12px">Use The Free Engine from your AI agent</h1>
+    <p class="muted">Connect any MCP client to <code>${esc(url)}</code>. Your agent can then speak text in any of 60 voices and 6 moods, find voices, and make music.</p>
+    <h3>1. Get a free API key</h3><p class="muted">${S.me ? `Open the <a href="#/studio">studio</a> and click <b>+ New key</b>.` : `<a href="#/signup">Sign up free</a>, confirm your email, then make a key in the studio.`} Keys start with <code>tfe_</code>.</p>
+    <h3>2. Add the server to your client</h3>
+    <div class="tabs" id="mcp-tabs">${clients.map(([id, label], i) => `<button class="${i ? "" : "on"}" data-c="${id}">${label}</button>`).join("")}</div>
+    <div class="card" id="mcp-body"></div>
+    <h3 style="margin-top:28px">3. Ask your agent</h3>
+    <div class="list">${["Read this script in June's excited voice and give me the MP3.", "List the calm female voices you can use.", "Make a 30-second lofi beat for my intro.", "How many characters do I have left today?"]
+      .map((t) => `<div class="li"><span>💬</span><div class="grow">${esc(t)}</div></div>`).join("")}</div>
+    <h3 style="margin-top:28px">Tools</h3>
+    <div class="card tblwrap"><table class="tbl"><tr><th>Tool</th><th>Inputs (* = required)</th><th>Returns</th></tr>
+      ${tools.map(([n, i, r]) => `<tr><td><code>${n}</code></td><td class="small">${esc(i)}</td><td class="small">${esc(r)}</td></tr>`).join("")}</table></div>
+    <p class="muted small">Moods: <code>neutral</code>, <code>happy</code>, <code>sad</code>, <code>excited</code>, <code>calm</code>, <code>serious</code>. If a voice has no such version, it uses neutral and says so in the reply.</p>
+    <h3 style="margin-top:28px">Good to know</h3>
+    <div class="card tblwrap"><table class="tbl">
+      <tr><td>Endpoint</td><td><code>POST ${esc(url)}</code>, streamable HTTP, JSON replies</td></tr>
+      <tr><td>Auth</td><td><code>Authorization: Bearer tfe_…</code>, the same key as the REST API</td></tr>
+      <tr><td>Limits</td><td>The free plan applies: 5,000 characters a day, 1,000 per call, 3 music tracks a day</td></tr>
+      <tr><td>Audio links</td><td>Private and random. They expire after 1 hour.</td></tr>
+      <tr><td>Big replies</td><td>Set <code>include_audio: false</code> to get only the link</td></tr>
+      <tr><td>Errors</td><td>Returned as tool results with <code>isError: true</code>, so the agent can read them</td></tr></table></div>
+    <p class="muted small" style="margin-top:14px">Keep your key secret. Don't commit it to git. If it leaks, delete it in the studio and make a new one.</p>
+    <p style="margin-top:20px"><a class="btn" href="#/docs">REST API docs</a></p></div>`;
+  const show = (id) => { $("#mcp-body").innerHTML = clients.find((c) => c[0] === id)[2]; $$("#mcp-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.c === id)); };
+  for (const b of $$("#mcp-tabs button")) b.onclick = () => show(b.dataset.c);
+  show(clients[0][0]);
+};
+
 function need(where) {
   sessionStorage.setItem("tfe_next", "#/" + where);
   view.innerHTML = `<div class="auth card fade" style="text-align:center"><h1>Log in first</h1><p class="muted">The ${where} is free. You just need an account.</p>
@@ -772,7 +843,7 @@ async function route() {
   if (name === "voices") { location.hash = "#/"; return; }
   const fn = pages[name] || pages.home;
   const T = { home: "Free Text-to-Speech API, Voice Cloning & AI Music", studio: "Studio", clone: "Free Voice Cloning", music: "Free AI Music Generator",
-    docs: "Text-to-Speech API Docs", login: "Log in", signup: "Sign up free", admin: "Admin" };
+    docs: "Text-to-Speech API Docs", mcp: "MCP Server for AI Agents", login: "Log in", signup: "Sign up free", admin: "Admin" };
   document.title = `${T[name] || T.home} | The Free Engine`;
   for (const a of $$("#nav a")) a.classList.toggle("on", a.dataset.r === name);
   try { await fn(); } catch (e) { view.innerHTML = `<div class="auth card"><h1>Oops</h1><p class="muted">${esc(e.message)}</p></div>`; }

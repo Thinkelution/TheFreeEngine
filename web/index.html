@@ -35,13 +35,14 @@
  {"@type":"WebApplication","name":"The Free Engine","url":"https://thefreeengine.site/","applicationCategory":"MultimediaApplication","operatingSystem":"Any (web browser, REST API)",
   "description":"Free text-to-speech API with 60 voices in 6 moods, free voice cloning and free instrumental AI music.",
   "offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD"}],
-  "featureList":["Text-to-speech REST API","60 house voices","Moods: neutral, happy, sad, excited, calm, serious","Free voice cloning","Private or public cloned voices","Instrumental AI music","MP3 and WAV output"],
+  "featureList":["Text-to-speech REST API","MCP server for AI agents","60 house voices","Moods: neutral, happy, sad, excited, calm, serious","Free voice cloning","Private or public cloned voices","Instrumental AI music","MP3 and WAV output"],
   "publisher":{"@id":"https://thefreeengine.site/#org"}},
  {"@type":"FAQPage","mainEntity":[
   {"@type":"Question","name":"Is The Free Engine really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free plan includes 5,000 characters of speech a day, 1 voice clone per account and 3 music tracks a day. No credit card is needed. Premium plans are coming soon."}},
   {"@type":"Question","name":"Can I choose the mood of a voice?","acceptedAnswer":{"@type":"Answer","text":"Yes. Many voices come in happy, sad, excited, calm and serious versions as well as neutral. Send \"mood\" in the API request, or pick a mood in the studio."}},
   {"@type":"Question","name":"How does free voice cloning work?","acceptedAnswer":{"@type":"Answer","text":"Upload or record 10 to 20 seconds of clear speech. Free clones wait in a queue and you get an email when your voice is ready. You can keep it private to your account or share it publicly."}},
   {"@type":"Question","name":"Can I make music?","acceptedAnswer":{"@type":"Answer","text":"Yes. Describe the sound you want and get a free instrumental track up to 30 seconds. Tracks are queued and you get an email when yours is done."}},
+  {"@type":"Question","name":"Can I use it from an AI agent?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Free Engine is an MCP server at https://thefreeengine.site/mcp. Add it to Claude, Cursor, VS Code, Kiro or any MCP client with your free API key, then ask the agent to speak text in any voice and mood or make music."}},
   {"@type":"Question","name":"Which models does it use?","acceptedAnswer":{"@type":"Answer","text":"Speech uses Kyutai Pocket TTS. House voices are built from LibriTTS-R recordings (CC BY 4.0). Music is powered by Stability AI's Stable Audio 3 Small."}}]}
 ]}
 </script>
@@ -56,6 +57,7 @@
     <a href="#/clone" data-r="clone">Clone</a>
     <a href="#/music" data-r="music">Music</a>
     <a href="#/docs" data-r="docs">API</a>
+    <a href="#/mcp" data-r="mcp">MCP</a>
     <a href="#/admin" data-r="admin" class="hide" id="nav-admin">Admin</a>
   </nav>
   <div class="who" id="who"></div>
@@ -71,6 +73,8 @@
   <p>Ask for a mood with <code>"mood": "excited"</code>. Each mood version was cloned from a real recording in that mood and kept only when the mood clearly comes through.</p>
   <h2>Quick start</h2>
   <pre><code>curl https://thefreeengine.site/v1/tts -H "Authorization: Bearer $TFE_KEY" -H "Content-Type: application/json" -d '{"text":"Hello world!","voice":"aria","mood":"happy"}' -o hello.mp3</code></pre>
+  <h2>Use it from AI agents (MCP)</h2>
+  <p>The Free Engine is a Model Context Protocol (MCP) server at <code>https://thefreeengine.site/mcp</code>. Connect Claude, Cursor, VS Code, Kiro or any MCP client with your API key. Tools: text_to_speech, list_voices, make_music, music_status, voice_status, get_usage. <a href="#/mcp">MCP setup guide</a>.</p>
   <h2>Questions</h2>
   <h3>Is it really free?</h3><p>Yes. No card is needed. Premium plans with higher limits are coming soon.</p>
   <h3>How does voice cloning work?</h3><p>Upload or record 10 to 20 seconds of clear speech. Free clones wait in a queue, and we email you when your voice is ready.</p>
