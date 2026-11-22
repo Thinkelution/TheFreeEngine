@@ -282,3 +282,20 @@ section.wrap, .page { min-width: 0 }
 .mcpcall { grid-template-columns: 1fr 1fr; background: radial-gradient(100% 140% at 100% 0%, rgba(139,108,255,.2), transparent 55%), radial-gradient(100% 140% at 0% 100%, rgba(34,211,238,.12), transparent 50%), var(--card) }
 .mcpcall pre { margin: 0 } @media (max-width: 800px) { .mcpcall { grid-template-columns: 1fr } }
 #mcp-tabs { margin: 8px 0 12px } #mcp-body pre { margin-bottom: 10px }
+/* button groups and logged-out cards */
+.btnrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
+.auth .btnrow, .gate .btnrow { justify-content: center }
+.cols { align-items: start }
+.gate { text-align: center; padding: 18px 8px }
+.gate .ic { margin: 0 auto 14px; font-size: 1.2rem } .gate h3 { margin-bottom: 6px } .gate p { margin: 0 0 18px }
+.foot { padding-left: clamp(16px, 4vw, 40px); padding-right: clamp(16px, 4vw, 40px) }
+.foot { max-width: 1180px; box-sizing: border-box }
+/* keep side padding: .page / .hero only set top and bottom */
+.wrap.page, .wrap.hero { padding-left: clamp(16px, 4vw, 40px); padding-right: clamp(16px, 4vw, 40px) }
+/* phone header: logo + buttons on row 1, menu on its own scrollable row 2 */
+@media (max-width: 720px) {
+  nav { flex: 1 0 100%; order: 3; overflow-x: auto; scrollbar-width: none }
+  nav::-webkit-scrollbar { display: none }
+  .top { padding-top: 10px; padding-bottom: 8px }
+  .who .btn.sm { padding: 6px 10px }
+}

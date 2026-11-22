@@ -437,7 +437,7 @@ const pages = {
     if (S.me) await loadMine();
     view.innerHTML = `<div class="wrap page fade"><div class="page-h"><div><h1>Clone a voice <span class="tag ok" style="vertical-align:middle">Free</span></h1>
       <p class="muted" style="margin:0">Every account gets 1 free clone. It waits in a queue, and we email you when it's ready. More clones come with Premium (coming soon).</p></div></div>
-      <div class="cols"><div class="card">${S.me ? cloneForm() : `<p>Make a free account to clone a voice.</p><a class="btn pri" href="#/signup">Sign up free</a> <a class="btn" href="#/login">Log in</a>`}</div>
+      <div class="cols"><div class="card">${S.me ? cloneForm() : `<div class="gate"><div class="ic">${ICON.mic}</div><h3>Clone your voice, free</h3><p class="muted">Make a free account to clone a voice. It takes a minute.</p><div class="btnrow"><a class="btn pri" href="#/signup">Sign up free</a><a class="btn" href="#/login">Log in</a></div></div>`}</div>
       <div><div class="notice info" style="margin-bottom:14px"><b>How the queue works.</b> Cloning is free, so every request waits its turn.
         It can take some time when many people are cloning. You'll get an email at <b>${esc(S.me?.email || "your address")}</b> when your voice is ready.</div>
         <h3>My voices</h3><div class="list" id="mine">${S.me ? "" : '<div class="empty small">Log in to see your voices.</div>'}</div></div></div></div>`;
@@ -584,7 +584,7 @@ pages.music = async function () {
         <label class="muted" title="Coming soon with Premium" style="cursor:not-allowed;opacity:.55">60 s+ ⭐</label></div></div>
       <button class="btn pri" type="submit" style="width:100%">Join the free music queue</button>
       <p class="small muted" style="text-align:center;margin:10px 0 0">${u.music_limit - u.music} of ${u.music_limit} free tracks left today · instrumental only</p></form>`
-      : `<p>Make a free account to create music.</p><a class="btn pri" href="#/signup">Sign up free</a> <a class="btn" href="#/login">Log in</a>`}</div>
+      : `<div class="gate"><div class="ic">🎵</div><h3>Make music, free</h3><p class="muted">Make a free account to create music. It takes a minute.</p><div class="btnrow"><a class="btn pri" href="#/signup">Sign up free</a><a class="btn" href="#/login">Log in</a></div></div>`}</div>
     <div><div class="notice info" style="margin-bottom:14px"><b>How it works.</b> Music is made on our own free servers, one track at a time.
       A track can take several minutes, plus your wait in line. We'll email you at <b>${esc(S.me?.email || "your address")}</b> when it's done.
       ⭐ Premium (coming soon) adds longer tracks and a priority queue.</div>
@@ -674,7 +674,7 @@ pages.mcp = async function () {
 function need(where) {
   sessionStorage.setItem("tfe_next", "#/" + where);
   view.innerHTML = `<div class="auth card fade" style="text-align:center"><h1>Log in first</h1><p class="muted">The ${where} is free. You just need an account.</p>
-    <a class="btn pri" href="#/signup">Sign up free</a> <a class="btn" href="#/login">Log in</a></div>`;
+    <div class="btnrow"><a class="btn pri" href="#/signup">Sign up free</a><a class="btn" href="#/login">Log in</a></div></div>`;
 }
 async function afterLogin(msg = "You're in!") {
   await loadMe(); toast(msg, "ok");
