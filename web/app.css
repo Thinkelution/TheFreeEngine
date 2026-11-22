@@ -276,3 +276,7 @@ section.wrap, .page { min-width: 0 }
 .seo-static { padding: 48px 0; color: var(--dim); max-width: 900px }
 .seo-static h1 { color: var(--text); font-size: clamp(2rem, 5vw, 3rem) }
 .seo-static h2 { color: var(--text); margin-top: 28px } .seo-static a { color: #c4b5fd }
+/* MCP */
+.mcpcall { grid-template-columns: 1fr 1fr; background: radial-gradient(100% 140% at 100% 0%, rgba(139,108,255,.2), transparent 55%), radial-gradient(100% 140% at 0% 100%, rgba(34,211,238,.12), transparent 50%), var(--card) }
+.mcpcall pre { margin: 0 } @media (max-width: 800px) { .mcpcall { grid-template-columns: 1fr } }
+#mcp-tabs { margin: 8px 0 12px } #mcp-body pre { margin-bottom: 10px }
