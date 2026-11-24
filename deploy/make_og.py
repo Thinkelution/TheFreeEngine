@@ -31,8 +31,8 @@ for i in range(28):
     d.rounded_rectangle((x0 + i * 16, mid - h / 2, x0 + i * 16 + 9, mid + h / 2), radius=4, fill=c)
 
 d.text((90, 240), "The Free Engine", font=font(84, True), fill=(236, 235, 247))
-d.text((92, 345), "Free text-to-speech, voice cloning & music API", font=font(40), fill=(190, 188, 215))
-d.text((92, 410), "60 voices · 6 moods · free voice clone · open models", font=font(32), fill=(150, 148, 180))
+d.text((92, 345), "Free text-to-speech & voice cloning API", font=font(40), fill=(190, 188, 215))
+d.text((92, 410), "60 voices · 6 moods · free voice clone · MCP for AI agents", font=font(32), fill=(150, 148, 180))
 d.rounded_rectangle((90, 500, 470, 560), radius=30, fill=(139, 108, 255))
 d.text((118, 510), "thefreeengine.site", font=font(32, True), fill=(10, 10, 18))
 img.save(sys.argv[1] if len(sys.argv) > 1 else "web/og.png", optimize=True)

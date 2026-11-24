@@ -370,11 +370,11 @@ const pages = {
         <p class="lead">${S.voices.length || 60} natural voices, free voice cloning, and a simple API. No card, no catch. Just sign up and start talking.</p>
         <div class="ctas">${S.me ? '<a class="btn pri" href="#/studio">Open studio</a>' : '<a class="btn pri" href="#/signup">Get your free API key</a>'}<a class="btn" href="#voices">Hear the voices</a></div>
         ${composerHTML(true)}
-        <div class="stats"><div><b>${S.voices.filter((v) => v.type === "house").length || 60}</b><span>house voices</span></div><div><b>5K</b><span>free chars / day</span></div><div><b>Free</b><span>voice cloning</span></div><div><b>♪</b><span>free music</span></div></div>
+        <div class="stats"><div><b>${S.voices.filter((v) => v.type === "house").length || 60}</b><span>house voices</span></div><div><b>5K</b><span>free chars / day</span></div><div><b>Free</b><span>voice cloning</span></div><div><b>MCP</b><span>for AI agents</span></div></div>
       </section>
       ${libraryHTML()}
       <section class="wrap"><div class="feat">
-        <div class="card"><div class="ic">${ICON.gift}</div><h3>Free, really</h3><p>5,000 characters a day, 1 free voice clone, 3 music tracks a day. No credit card.</p></div>
+        <div class="card"><div class="ic">${ICON.gift}</div><h3>Free, really</h3><p>5,000 characters a day and 1 free voice clone. No credit card.</p></div>
         <div class="card"><div class="ic">${ICON.code}</div><h3>Simple API</h3><p>One POST, get an MP3 back. Works from any language.</p></div>
         <div class="card"><div class="ic">${ICON.lock}</div><h3>Your voice, your rules</h3><p>Keep a cloned voice private to your account, or share it with everyone.</p></div>
         <div class="card"><div class="ic">${ICON.bolt}</div><h3>Open models</h3><p>Built on Kyutai Pocket TTS. Every house voice lists its public source.</p></div>
@@ -407,7 +407,7 @@ const pages = {
         <div class="feat" style="margin-top:14px">
           <div class="card"><h3>🗣️ text_to_speech</h3><p>Any voice, any mood. Returns audio plus a 1-hour link.</p></div>
           <div class="card"><h3>🎭 list_voices</h3><p>Filter by mood, gender, tone and pitch.</p></div>
-          <div class="card"><h3>🎵 make_music</h3><p>Queue an instrumental track, then fetch it.</p></div>
+          <div class="card"><h3>🎙️ voice_status</h3><p>Check your cloned voice and its moods.</p></div>
           <div class="card"><h3>📊 get_usage</h3><p>See today's use and free limits.</p></div></div></section>
       <section class="wrap"><div class="cols"><div><h2>Three lines to speech</h2><p class="muted">Get a key in the studio, then:</p>
 <pre><code>curl ${location.origin}/v1/tts \\
@@ -416,7 +416,7 @@ const pages = {
   -d '{"text":"Hello world!","voice":"aria"}' -o hello.mp3</code></pre><a class="btn" href="#/docs">Read the API docs</a></div>
         <div class="card"><h3>Plans</h3><table class="tbl"><tr><th></th><th>Free</th><th>Premium</th></tr>
           <tr><td>Characters per day</td><td><b>5,000</b></td><td>More</td></tr><tr><td>Characters per request</td><td><b>1,000</b></td><td>More</td></tr>
-          <tr><td>Voice clones</td><td><b>1 per account</b></td><td>More</td></tr><tr><td>Music tracks</td><td><b>3 a day, 30 s</b></td><td>Longer, more</td></tr>
+          <tr><td>Voice clones</td><td><b>1 per account</b></td><td>More</td></tr>
           <tr><td>Queue</td><td>Shared</td><td>Priority</td></tr><tr><td>Price</td><td><b class="grad">$0</b></td><td><span class="tag warn">Coming soon</span></td></tr></table></div></div></section>
     </div>`;
     wireComposer(); wireLibrary();
@@ -447,8 +447,8 @@ const pages = {
   async docs() {
     const o = location.origin;
     const rows = [["GET", "/v1/voices", "All voices you can use"], ["POST", "/v1/tts", "Text to speech (MP3 or WAV)"], ["POST", "/v1/voices/clone", "Queue a voice clone"],
-      ["GET", "/v1/voices/{id}", "Check a clone's status"], ["POST", "/v1/voices/{id}/moods", "Add a mood clip to your voice"], ["POST", "/v1/music", "Queue a music track"], ["GET", "/v1/music/{id}", "Check a track's status"],
-      ["GET", "/v1/music/{id}/audio", "Download a finished track (MP3)"], ["GET", "/v1/usage", "Today's use and limits"]];
+      ["GET", "/v1/voices/{id}", "Check a clone's status"], ["POST", "/v1/voices/{id}/moods", "Add a mood clip to your voice"],
+      ["GET", "/v1/usage", "Today's use and limits"]];
     view.innerHTML = `<div class="wrap page fade" style="max-width:900px"><h1>API</h1><p class="muted">Base URL <code>${o}</code>. Send your key as <code>Authorization: Bearer tfe_…</code>. Get a key in the <a href="#/studio">studio</a>.</p>
       <div class="card tblwrap" style="margin:18px 0 30px"><table class="tbl"><tr><th>Method</th><th>Path</th><th>What it does</th></tr>
       ${rows.map(([m, p, d]) => `<tr><td><span class="m ${m.toLowerCase()}">${m}</span></td><td><code>${p}</code></td><td>${d}</td></tr>`).join("")}</table></div>
@@ -484,16 +484,8 @@ curl "${o}/v1/voices?mood=sad&gender=f&tone=warm" -H "Authorization: Bearer $TFE
   -F file=@calm.wav -F name="My voice" -F mood=calm -F consent=yes
 curl ${o}/v1/voices/u_…/moods -H "Authorization: Bearer $TFE_KEY" \\
   -F file=@happy.wav -F mood=happy -F consent=yes</code></pre>
-      <h3>Make music</h3><p class="muted">Free: 3 instrumental tracks a day, up to 30 seconds. Tracks are queued; poll the status or wait for our email.</p>
-<pre><code>curl ${o}/v1/music -H "Authorization: Bearer $TFE_KEY" -H "Content-Type: application/json" \\
-  -d '{"prompt":"Calm lofi beat with soft piano 80 BPM","duration":30}'
-# → {"id":"m_…","status":"queued","queue_position":2}
-
-curl ${o}/v1/music/m_… -H "Authorization: Bearer $TFE_KEY"          # queued → processing → ready
-curl ${o}/v1/music/m_…/audio -H "Authorization: Bearer $TFE_KEY" -o track.mp3</code></pre>
-      <p class="muted small">Music powered by Stability AI.</p>
       <h3>Use with AI agents (MCP)</h3><p class="muted">Connect any MCP client (Claude, Cursor, Kiro, VS Code and others) to <code>${o}/mcp</code> with your API key.
-      Tools: <code>list_voices</code>, <code>text_to_speech</code> (returns audio plus a 1-hour download link), <code>make_music</code>, <code>music_status</code>, <code>voice_status</code>, <code>get_usage</code>.</p>
+      Tools: <code>list_voices</code>, <code>text_to_speech</code> (returns audio plus a 1-hour download link), <code>voice_status</code>, <code>get_usage</code>. <a href="#/mcp">Setup guide</a>.</p>
 <pre><code>{
   "mcpServers": {
     "the-free-engine": {
@@ -562,6 +554,7 @@ curl ${o}/v1/music/m_…/audio -H "Authorization: Bearer $TFE_KEY" -o track.mp3<
 };
 
 /* ------------------------------------------------------------ music */
+const MUSIC_ON = false; // music is paused (it needs the big-RAM worker); set true to bring the page back
 const MUSIC_IDEAS = [
   ["Lofi", "Calm lofi hip hop beat with soft piano, warm vinyl crackle and mellow drums 80 BPM"],
   ["House", "Upbeat house track with punchy kick, bright synth chords and a big build 124 BPM"],
@@ -574,6 +567,12 @@ const MUSIC_IDEAS = [
 ];
 let musicTimer = 0;
 pages.music = async function () {
+  if (!MUSIC_ON) {
+    view.innerHTML = `<div class="auth card fade" style="text-align:center"><div class="ic" style="margin:0 auto 14px">🎵</div><h1>Music is paused</h1>
+      <p class="muted">We've paused music for now. Text-to-speech, moods and voice cloning all still work.</p>
+      <div class="btnrow"><a class="btn pri" href="#/studio">Open studio</a><a class="btn" href="#/">See the voices</a></div></div>`;
+    return;
+  }
   const u = S.me?.usage;
   view.innerHTML = `<div class="wrap page fade"><div class="page-h"><div><h1>Make music <span class="tag ok" style="vertical-align:middle">Free</span></h1>
     <p class="muted" style="margin:0">Describe a sound and get an instrumental track. Free tracks wait in a queue, and we email you when yours is ready.</p></div></div>
@@ -637,20 +636,18 @@ pages.mcp = async function () {
   const tools = [
     ["text_to_speech", "text*, voice, mood, format, include_audio", "Speech as audio, plus a download link valid 1 hour"],
     ["list_voices", "mood, gender, tone, pitch", "Voices you can use, with their moods"],
-    ["make_music", "prompt*, duration (5–30)", "Queues a track and returns its id"],
-    ["music_status", "id*", "Status, and a download link when ready"],
     ["voice_status", "id*", "Status and moods of your cloned voice"],
     ["get_usage", "—", "Today's use and free limits"],
   ];
   view.innerHTML = `<div class="wrap page fade" style="max-width:920px">
     <span class="tag a">MCP · Model Context Protocol</span><h1 style="margin-top:12px">Use The Free Engine from your AI agent</h1>
-    <p class="muted">Connect any MCP client to <code>${esc(url)}</code>. Your agent can then speak text in any of 60 voices and 6 moods, find voices, and make music.</p>
+    <p class="muted">Connect any MCP client to <code>${esc(url)}</code>. Your agent can then speak text in any of 60 voices and 6 moods, and find the right voice.</p>
     <h3>1. Get a free API key</h3><p class="muted">${S.me ? `Open the <a href="#/studio">studio</a> and click <b>+ New key</b>.` : `<a href="#/signup">Sign up free</a>, confirm your email, then make a key in the studio.`} Keys start with <code>tfe_</code>.</p>
     <h3>2. Add the server to your client</h3>
     <div class="tabs" id="mcp-tabs">${clients.map(([id, label], i) => `<button class="${i ? "" : "on"}" data-c="${id}">${label}</button>`).join("")}</div>
     <div class="card" id="mcp-body"></div>
     <h3 style="margin-top:28px">3. Ask your agent</h3>
-    <div class="list">${["Read this script in June's excited voice and give me the MP3.", "List the calm female voices you can use.", "Make a 30-second lofi beat for my intro.", "How many characters do I have left today?"]
+    <div class="list">${["Read this script in June's excited voice and give me the MP3.", "List the calm female voices you can use.", "Use Leo's serious voice for this safety notice.", "How many characters do I have left today?"]
       .map((t) => `<div class="li"><span>💬</span><div class="grow">${esc(t)}</div></div>`).join("")}</div>
     <h3 style="margin-top:28px">Tools</h3>
     <div class="card tblwrap"><table class="tbl"><tr><th>Tool</th><th>Inputs (* = required)</th><th>Returns</th></tr>
@@ -660,7 +657,7 @@ pages.mcp = async function () {
     <div class="card tblwrap"><table class="tbl">
       <tr><td>Endpoint</td><td><code>POST ${esc(url)}</code>, streamable HTTP, JSON replies</td></tr>
       <tr><td>Auth</td><td><code>Authorization: Bearer tfe_…</code>, the same key as the REST API</td></tr>
-      <tr><td>Limits</td><td>The free plan applies: 5,000 characters a day, 1,000 per call, 3 music tracks a day</td></tr>
+      <tr><td>Limits</td><td>The free plan applies: 5,000 characters a day, 1,000 per call</td></tr>
       <tr><td>Audio links</td><td>Private and random. They expire after 1 hour.</td></tr>
       <tr><td>Big replies</td><td>Set <code>include_audio: false</code> to get only the link</td></tr>
       <tr><td>Errors</td><td>Returned as tool results with <code>isError: true</code>, so the agent can read them</td></tr></table></div>
@@ -697,11 +694,10 @@ function renderUsage() {
   const u = S.me.usage, pc = (a, b) => Math.min(100, (a / b) * 100).toFixed(1) + "%";
   $("#usage").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Your plan</h3><span class="tag ok">Free</span></div>
     <div class="small muted" style="margin-top:12px">Characters today · ${u.chars.toLocaleString()} of ${u.chars_limit.toLocaleString()}</div><div class="meter"><i></i></div>
-    <div class="small muted" style="margin-top:12px">Music today · ${u.music} of ${u.music_limit}</div><div class="meter"><i></i></div>
     <div class="small muted" style="margin-top:12px">Voice clone · ${u.clones_used} of ${u.clones_limit} (per account)</div><div class="meter"><i></i></div>
     <div class="small muted" style="margin-top:10px">Daily limits reset at midnight UTC.</div>
-    <div class="notice" style="margin-top:14px">⭐ <b>Premium is coming soon:</b> more characters, more clones, longer music, priority queue.</div>`;
-  const m = $$("#usage .meter i"); m[0].style.setProperty("--w", pc(u.chars, u.chars_limit)); m[1].style.setProperty("--w", pc(u.music, u.music_limit)); m[2].style.setProperty("--w", pc(u.clones_used, u.clones_limit));
+    <div class="notice" style="margin-top:14px">⭐ <b>Premium is coming soon:</b> more characters, more clones, priority queue.</div>`;
+  const m = $$("#usage .meter i"); m[0].style.setProperty("--w", pc(u.chars, u.chars_limit)); m[1].style.setProperty("--w", pc(u.clones_used, u.clones_limit));
 }
 async function renderKeys(fresh) {
   const el = $("#keys"); if (!el) return;
@@ -842,7 +838,7 @@ async function route() {
   const name = (location.hash.replace(/^#\/?/, "").split("?")[0] || "home");
   if (name === "voices") { location.hash = "#/"; return; }
   const fn = pages[name] || pages.home;
-  const T = { home: "Free Text-to-Speech API, Voice Cloning & AI Music", studio: "Studio", clone: "Free Voice Cloning", music: "Free AI Music Generator",
+  const T = { home: "Free Text-to-Speech API, Voice Cloning & Moods", studio: "Studio", clone: "Free Voice Cloning", music: "Free AI Music Generator",
     docs: "Text-to-Speech API Docs", mcp: "MCP Server for AI Agents", login: "Log in", signup: "Sign up free", admin: "Admin" };
   document.title = `${T[name] || T.home} | The Free Engine`;
   for (const a of $$("#nav a")) a.classList.toggle("on", a.dataset.r === name);
