@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Free Text-to-Speech API, Voice Cloning & AI Music | The Free Engine</title>
-<meta name="description" content="Free text-to-speech API with 60 natural voices in 6 moods (happy, sad, excited, calm, serious), free voice cloning and free AI music. Built on open models. No credit card.">
-<meta name="keywords" content="free text to speech, free TTS API, voice cloning free, AI voice generator, emotional TTS, text to speech moods, AI music generator free, open source TTS">
+<title>Free Text-to-Speech API with Moods & Voice Cloning | The Free Engine</title>
+<meta name="description" content="Free text-to-speech API with 60 natural voices in 6 moods (happy, sad, excited, calm, serious), free voice cloning and an MCP server for AI agents. Built on open models. No credit card.">
+<meta name="keywords" content="free text to speech, free TTS API, voice cloning free, AI voice generator, emotional TTS, text to speech moods, MCP text to speech, open source TTS">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://thefreeengine.site/">
 <meta name="theme-color" content="#0a0a12">
@@ -14,15 +14,15 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Free Engine">
 <meta property="og:url" content="https://thefreeengine.site/">
-<meta property="og:title" content="The Free Engine · Free TTS, voice cloning & music API">
-<meta property="og:description" content="60 natural voices in 6 moods, free voice cloning and free AI music. Sign up, get a key, make speech.">
+<meta property="og:title" content="The Free Engine · Free TTS & voice cloning API">
+<meta property="og:description" content="60 natural voices in 6 moods and free voice cloning. Sign up, get a key, make speech.">
 <meta property="og:image" content="https://thefreeengine.site/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Free Engine: free text-to-speech, voice cloning and music API">
+<meta property="og:image:alt" content="The Free Engine: free text-to-speech and voice cloning API">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Free Engine · Free TTS, voice cloning & music API">
-<meta name="twitter:description" content="60 natural voices in 6 moods, free voice cloning and free AI music.">
+<meta name="twitter:title" content="The Free Engine · Free TTS & voice cloning API">
+<meta name="twitter:description" content="60 natural voices in 6 moods and free voice cloning.">
 <meta name="twitter:image" content="https://thefreeengine.site/og.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/og.png">
@@ -33,17 +33,16 @@
  {"@type":"Organization","@id":"https://thefreeengine.site/#org","name":"The Free Engine","url":"https://thefreeengine.site/","logo":"https://thefreeengine.site/og.png","sameAs":["https://github.com/Thinkelution/TheFreeEngine"]},
  {"@type":"WebSite","@id":"https://thefreeengine.site/#site","url":"https://thefreeengine.site/","name":"The Free Engine","publisher":{"@id":"https://thefreeengine.site/#org"},"inLanguage":"en"},
  {"@type":"WebApplication","name":"The Free Engine","url":"https://thefreeengine.site/","applicationCategory":"MultimediaApplication","operatingSystem":"Any (web browser, REST API)",
-  "description":"Free text-to-speech API with 60 voices in 6 moods, free voice cloning and free instrumental AI music.",
+  "description":"Free text-to-speech API with 60 voices in 6 moods, free voice cloning and an MCP server for AI agents.",
   "offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD"}],
-  "featureList":["Text-to-speech REST API","MCP server for AI agents","60 house voices","Moods: neutral, happy, sad, excited, calm, serious","Free voice cloning","Private or public cloned voices","Instrumental AI music","MP3 and WAV output"],
+  "featureList":["Text-to-speech REST API","MCP server for AI agents","60 house voices","Moods: neutral, happy, sad, excited, calm, serious","Free voice cloning","Private or public cloned voices","MP3 and WAV output"],
   "publisher":{"@id":"https://thefreeengine.site/#org"}},
  {"@type":"FAQPage","mainEntity":[
-  {"@type":"Question","name":"Is The Free Engine really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free plan includes 5,000 characters of speech a day, 1 voice clone per account and 3 music tracks a day. No credit card is needed. Premium plans are coming soon."}},
+  {"@type":"Question","name":"Is The Free Engine really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free plan includes 5,000 characters of speech a day and 1 voice clone per account. No credit card is needed. Premium plans are coming soon."}},
   {"@type":"Question","name":"Can I choose the mood of a voice?","acceptedAnswer":{"@type":"Answer","text":"Yes. Many voices come in happy, sad, excited, calm and serious versions as well as neutral. Send \"mood\" in the API request, or pick a mood in the studio."}},
   {"@type":"Question","name":"How does free voice cloning work?","acceptedAnswer":{"@type":"Answer","text":"Upload or record 10 to 20 seconds of clear speech. Free clones wait in a queue and you get an email when your voice is ready. You can keep it private to your account or share it publicly."}},
-  {"@type":"Question","name":"Can I make music?","acceptedAnswer":{"@type":"Answer","text":"Yes. Describe the sound you want and get a free instrumental track up to 30 seconds. Tracks are queued and you get an email when yours is done."}},
-  {"@type":"Question","name":"Can I use it from an AI agent?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Free Engine is an MCP server at https://thefreeengine.site/mcp. Add it to Claude, Cursor, VS Code, Kiro or any MCP client with your free API key, then ask the agent to speak text in any voice and mood or make music."}},
-  {"@type":"Question","name":"Which models does it use?","acceptedAnswer":{"@type":"Answer","text":"Speech uses Kyutai Pocket TTS. House voices are built from LibriTTS-R recordings (CC BY 4.0). Music is powered by Stability AI's Stable Audio 3 Small."}}]}
+  {"@type":"Question","name":"Can I use it from an AI agent?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Free Engine is an MCP server at https://thefreeengine.site/mcp. Add it to Claude, Cursor, VS Code, Kiro or any MCP client with your free API key, then ask the agent to speak text in any voice and mood."}},
+  {"@type":"Question","name":"Which models does it use?","acceptedAnswer":{"@type":"Answer","text":"Speech uses Kyutai Pocket TTS. House voices are built from LibriTTS-R recordings (CC BY 4.0)."}}]}
 ]}
 </script>
 </head>
@@ -55,7 +54,6 @@
     <a href="#/" data-r="home">Voices</a>
     <a href="#/studio" data-r="studio">Studio</a>
     <a href="#/clone" data-r="clone">Clone</a>
-    <a href="#/music" data-r="music">Music</a>
     <a href="#/docs" data-r="docs">API</a>
     <a href="#/mcp" data-r="mcp">MCP</a>
     <a href="#/admin" data-r="admin" class="hide" id="nav-admin">Admin</a>
@@ -63,10 +61,10 @@
   <div class="who" id="who"></div>
 </header>
 <main id="view" tabindex="-1"><div class="boot" aria-hidden="true"><span class="mark"><b></b><b></b><b></b><b></b></span></div><!--SEO-START--><div class="wrap seo-static">
-  <h1>Free text-to-speech API, voice cloning and AI music</h1>
-  <p>The Free Engine gives you a free text-to-speech API with 60 natural voices, each in up to six moods: neutral, happy, sad, excited, calm and serious. Clone your own voice for free, keep it private or share it, and make free instrumental music from a text prompt.</p>
+  <h1>Free text-to-speech API with moods and voice cloning</h1>
+  <p>The Free Engine gives you a free text-to-speech API with 60 natural voices, each in up to six moods: neutral, happy, sad, excited, calm and serious. Clone your own voice for free, and keep it private or share it. AI agents can use it through MCP.</p>
   <h2>Free plan</h2>
-  <ul><li>5,000 characters of speech a day, up to 1,000 per request</li><li>1 free voice clone per account, plus up to 4 extra mood clips</li><li>3 instrumental music tracks a day, up to 30 seconds</li><li>MP3 or WAV output, simple REST API, no credit card</li></ul>
+  <ul><li>5,000 characters of speech a day, up to 1,000 per request</li><li>1 free voice clone per account, plus up to 4 extra mood clips</li><li>MP3 or WAV output, simple REST API, no credit card</li></ul>
   <h2>Voices</h2>
   <p><!--SEO-VOICES--></p>
   <h2>Moods</h2>
@@ -74,12 +72,12 @@
   <h2>Quick start</h2>
   <pre><code>curl https://thefreeengine.site/v1/tts -H "Authorization: Bearer $TFE_KEY" -H "Content-Type: application/json" -d '{"text":"Hello world!","voice":"aria","mood":"happy"}' -o hello.mp3</code></pre>
   <h2>Use it from AI agents (MCP)</h2>
-  <p>The Free Engine is a Model Context Protocol (MCP) server at <code>https://thefreeengine.site/mcp</code>. Connect Claude, Cursor, VS Code, Kiro or any MCP client with your API key. Tools: text_to_speech, list_voices, make_music, music_status, voice_status, get_usage. <a href="#/mcp">MCP setup guide</a>.</p>
+  <p>The Free Engine is a Model Context Protocol (MCP) server at <code>https://thefreeengine.site/mcp</code>. Connect Claude, Cursor, VS Code, Kiro or any MCP client with your API key. Tools: text_to_speech, list_voices, voice_status, get_usage. <a href="#/mcp">MCP setup guide</a>.</p>
   <h2>Questions</h2>
   <h3>Is it really free?</h3><p>Yes. No card is needed. Premium plans with higher limits are coming soon.</p>
   <h3>How does voice cloning work?</h3><p>Upload or record 10 to 20 seconds of clear speech. Free clones wait in a queue, and we email you when your voice is ready.</p>
-  <h3>Which models power it?</h3><p>Speech: Kyutai Pocket TTS. House voices: LibriTTS-R (CC BY 4.0). Music: Stability AI Stable Audio 3 Small.</p>
-  <p><a href="#/signup">Sign up free</a> · <a href="#/docs">API docs</a> · <a href="#/clone">Clone a voice</a> · <a href="#/music">Make music</a></p>
+  <h3>Which models power it?</h3><p>Speech: Kyutai Pocket TTS. House voices: LibriTTS-R (CC BY 4.0).</p>
+  <p><a href="#/signup">Sign up free</a> · <a href="#/docs">API docs</a> · <a href="#/clone">Clone a voice</a> · <a href="#/mcp">Use with AI agents</a></p>
 </div><!--SEO-END--></main>
 <footer class="foot">
   <span>Free speech for everyone. Built on <a href="https://github.com/kyutai-labs/pocket-tts" rel="noopener">Kyutai Pocket TTS</a>.

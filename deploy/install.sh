@@ -25,8 +25,8 @@ if [ ! -x $APP/venv/bin/uvicorn ] || [ "$(cat $APP/venv/.req 2>/dev/null)" != "$
   echo "$REQ_SUM" > $APP/venv/.req
 fi
 
-# Music env: Stable Audio 3 with CPU torch, kept apart from the TTS env.
-if [ ! -x $APP/music-venv/bin/python ] || [ ! -f $APP/music-venv/.ok ]; then
+# Music env: Stable Audio 3 with CPU torch, kept apart from the TTS env. Only with TFE_MUSIC=1 (needs ~6 GB RAM).
+if [ "${TFE_MUSIC:-0}" = 1 ] && { [ ! -x $APP/music-venv/bin/python ] || [ ! -f $APP/music-venv/.ok ]; }; then
   [ -d $APP/stable-audio-3 ] || git clone -q --depth 1 https://github.com/Stability-AI/stable-audio-3.git $APP/stable-audio-3
   sed -i -E 's/"(torch|torchaudio|torchvision)==[0-9.]+"/"\1"/g' $APP/stable-audio-3/pyproject.toml
   python3 -m venv $APP/music-venv
@@ -154,9 +154,16 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable -q freeengine freeengine-music
+systemctl enable -q freeengine
 systemctl restart freeengine
-systemctl restart freeengine-music
+if [ "${TFE_MUSIC:-0}" = 1 ]; then
+  sed -i '/^TFE_MUSIC_ENABLED=/d' $ENVF; echo "TFE_MUSIC_ENABLED=1" >> $ENVF
+  systemctl enable -q freeengine-music; systemctl restart freeengine-music; systemctl restart freeengine
+else
+  sed -i '/^TFE_MUSIC_ENABLED=/d' $ENVF
+  systemctl disable --now -q freeengine-music 2>/dev/null || true
+  echo "music worker: $(systemctl is-active freeengine-music 2>/dev/null || true) / $(systemctl is-enabled freeengine-music 2>/dev/null || true)"
+fi
 for i in $(seq 1 90); do curl -sf http://127.0.0.1:$PORT/v1/health && break; sleep 2; done; echo
 systemctl is-active freeengine
 

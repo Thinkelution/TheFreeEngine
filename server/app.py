@@ -49,6 +49,7 @@ MAX_CHARS = int(os.environ.get("TFE_MAX_CHARS", "1000"))
 DAILY_CHARS = int(os.environ.get("TFE_DAILY_CHARS", "5000"))
 CLONES_PER_ACCOUNT = int(os.environ.get("TFE_CLONES_PER_ACCOUNT", "1"))  # lifetime, free plan
 DAILY_MUSIC = int(os.environ.get("TFE_DAILY_MUSIC", "3"))
+MUSIC_ENABLED = os.environ.get("TFE_MUSIC_ENABLED", "0") == "1"  # music needs the big-RAM worker; off by default
 MUSIC_MAX_SEC = int(os.environ.get("TFE_MUSIC_MAX_SEC", "30"))
 MAX_USER_VOICES = int(os.environ.get("TFE_MAX_USER_VOICES", "10"))
 MAX_KEYS = 5
@@ -182,7 +183,8 @@ def charge(uid: int, chars=0, clones=0, music=0):
 def usage_out(us) -> dict:
     return {"chars": us["chars"], "chars_limit": DAILY_CHARS, "max_chars_per_request": MAX_CHARS,
             "clones_used": us["clones_used"], "clones_limit": CLONES_PER_ACCOUNT,
-            "music": us["music"], "music_limit": DAILY_MUSIC, "music_max_sec": MUSIC_MAX_SEC,
+            "music": us["music"], "music_limit": DAILY_MUSIC if MUSIC_ENABLED else 0, "music_max_sec": MUSIC_MAX_SEC,
+            "music_enabled": MUSIC_ENABLED,
             "max_voices": MAX_USER_VOICES, "plan": "free"}
 
 
@@ -869,6 +871,7 @@ def health():
     return {"ok": True, "voices": len(state.get("house", {})),
             "mood_versions": sum(len(house_moods(v)) - 1 for v in state.get("catalog", {})),
             "clone_queue": q1("SELECT COUNT(*) n FROM voices WHERE status IN ('queued','processing')")["n"],
+            "music_enabled": MUSIC_ENABLED,
             "music_queue": q1("SELECT COUNT(*) n FROM music WHERE status IN ('queued','processing')")["n"]}
 
 
@@ -936,6 +939,8 @@ def _music_out(r: sqlite3.Row) -> dict:
 
 
 def _queue_music(u: User, body: MusicRequest) -> dict:
+    if not MUSIC_ENABLED:
+        raise HTTPException(503, "Music is paused for now. Text-to-speech and voice cloning still work.")
     if body.duration > MUSIC_MAX_SEC:
         raise HTTPException(400, f"Free tracks can be up to {MUSIC_MAX_SEC} seconds. Longer tracks come with Premium.")
     if usage(u.id)["music"] >= DAILY_MUSIC:
@@ -1130,7 +1135,7 @@ async def mcp(req: Request):
         return _rpc(id_, {"protocolVersion": want if want in MCP_VERSIONS else MCP_VERSIONS[0],
                           "capabilities": {"tools": {"listChanged": False}},
                           "serverInfo": {"name": "the-free-engine", "title": "The Free Engine", "version": "1.0.0"},
-                          "instructions": "Free text-to-speech (60 voices, 6 moods) and instrumental music. "
+                          "instructions": "Free text-to-speech (60 voices, 6 moods)" + (" and instrumental music" if MUSIC_ENABLED else "") + ". "
                                           "Call list_voices to pick a voice, then text_to_speech."})
     if method == "ping":
         return _rpc(id_, {})
@@ -1140,7 +1145,8 @@ async def mcp(req: Request):
         return JSONResponse(_rpc(id_, error={"code": -32001, "message": e.detail}), status_code=401,
                             headers={"WWW-Authenticate": 'Bearer realm="The Free Engine"'})
     if method == "tools/list":
-        return _rpc(id_, {"tools": MCP_TOOLS})
+        tools = MCP_TOOLS if MUSIC_ENABLED else [t for t in MCP_TOOLS if t["name"] not in ("make_music", "music_status")]
+        return _rpc(id_, {"tools": tools})
     if method == "tools/call":
         name = params.get("name")
         try:

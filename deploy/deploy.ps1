@@ -1,9 +1,9 @@
-# Package the repo and install it on the 208 server.  ./deploy/deploy.ps1 [-SetMailKey]
+# Package the repo and install it on the server.  ./deploy/deploy.ps1 [-SetMailKey] [-Server user@host]
 # The install runs as a systemd job on the server, so a dropped SSH link cannot cut it off.
-param([switch]$SetMailKey)
+# thefreeengine.site is behind Cloudflare (no SSH), so connect by the origin IP.
+param([switch]$SetMailKey, [string]$Server = $(if ($env:TFE_SERVER) { $env:TFE_SERVER } else { 'administrator@170.23.67.208' }))
 $ErrorActionPreference = 'Stop'
 $Repo = Split-Path $PSScriptRoot -Parent
-$Server = 'administrator@208.110.72.147'
 $tar = Join-Path $env:TEMP 'freeengine-release.tar.gz'
 Push-Location $Repo
 try {
