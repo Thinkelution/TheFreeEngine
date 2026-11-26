@@ -693,11 +693,11 @@ function authPage(title, sub, fields, cta, fn, alt = "") {
 function renderUsage() {
   const u = S.me.usage, pc = (a, b) => Math.min(100, (a / b) * 100).toFixed(1) + "%";
   $("#usage").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Your plan</h3><span class="tag ok">Free</span></div>
-    <div class="small muted" style="margin-top:12px">Characters today · ${u.chars.toLocaleString()} of ${u.chars_limit.toLocaleString()}</div><div class="meter"><i></i></div>
+    <div class="small muted" style="margin-top:12px">Characters today · ${u.chars.toLocaleString()} of ${u.chars_unlimited ? "unlimited" : u.chars_limit.toLocaleString()}</div><div class="meter"><i></i></div>
     <div class="small muted" style="margin-top:12px">Voice clone · ${u.clones_used} of ${u.clones_limit} (per account)</div><div class="meter"><i></i></div>
     <div class="small muted" style="margin-top:10px">Daily limits reset at midnight UTC.</div>
     <div class="notice" style="margin-top:14px">⭐ <b>Premium is coming soon:</b> more characters, more clones, priority queue.</div>`;
-  const m = $$("#usage .meter i"); m[0].style.setProperty("--w", pc(u.chars, u.chars_limit)); m[1].style.setProperty("--w", pc(u.clones_used, u.clones_limit));
+  const m = $$("#usage .meter i"); m[0].style.setProperty("--w", u.chars_unlimited ? "0%" : pc(u.chars, u.chars_limit)); m[1].style.setProperty("--w", pc(u.clones_used, u.clones_limit));
 }
 async function renderKeys(fresh) {
   const el = $("#keys"); if (!el) return;

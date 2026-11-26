@@ -150,7 +150,8 @@ CREATE TABLE IF NOT EXISTS music(
 """)
 for _sql in ("ALTER TABLE users ADD COLUMN clones_used INTEGER DEFAULT 0",
              "ALTER TABLE usage ADD COLUMN music INTEGER DEFAULT 0",
-             "ALTER TABLE voices ADD COLUMN mood TEXT DEFAULT 'neutral'"):
+             "ALTER TABLE voices ADD COLUMN mood TEXT DEFAULT 'neutral'",
+             "ALTER TABLE users ADD COLUMN daily_chars INTEGER"):  # per-account override: NULL = default, 0 = unlimited
     try:
         _db.execute(_sql)
     except sqlite3.OperationalError:
@@ -168,8 +169,23 @@ MAX_EXTRA_MOODS = int(os.environ.get("TFE_MAX_EXTRA_MOODS", "4"))  # extra mood 
 
 def usage(uid: int) -> sqlite3.Row:
     ex("INSERT OR IGNORE INTO usage(user_id, day) VALUES(?,?)", (uid, today()))
-    return q1("SELECT u.chars, u.clones, u.requests, u.music, a.clones_used FROM usage u JOIN users a ON a.id=u.user_id "
-              "WHERE u.user_id=? AND u.day=?", (uid, today()))
+    return q1("SELECT u.chars, u.clones, u.requests, u.music, a.clones_used, a.daily_chars FROM usage u "
+              "JOIN users a ON a.id=u.user_id WHERE u.user_id=? AND u.day=?", (uid, today()))
+
+
+def chars_limit(us) -> int | None:
+    """Daily character limit for this account; None means unlimited."""
+    v = us["daily_chars"]
+    if v is None:
+        return DAILY_CHARS
+    return None if v <= 0 else v
+
+
+def check_chars(uid: int, n: int):
+    us = usage(uid)
+    lim = chars_limit(us)
+    if lim is not None and us["chars"] + n > lim:
+        raise HTTPException(429, f"You used today's {lim} free characters. More tomorrow!")
 
 
 def charge(uid: int, chars=0, clones=0, music=0):
@@ -181,7 +197,8 @@ def charge(uid: int, chars=0, clones=0, music=0):
 
 
 def usage_out(us) -> dict:
-    return {"chars": us["chars"], "chars_limit": DAILY_CHARS, "max_chars_per_request": MAX_CHARS,
+    lim = chars_limit(us)
+    return {"chars": us["chars"], "chars_limit": lim, "chars_unlimited": lim is None, "max_chars_per_request": MAX_CHARS,
             "clones_used": us["clones_used"], "clones_limit": CLONES_PER_ACCOUNT,
             "music": us["music"], "music_limit": DAILY_MUSIC if MUSIC_ENABLED else 0, "music_max_sec": MUSIC_MAX_SEC,
             "music_enabled": MUSIC_ENABLED,
@@ -887,8 +904,7 @@ async def v1_tts(body: TTSRequest, u: User = Depends(api_user)):
     text = body.text.strip()
     if len(text) > MAX_CHARS:
         raise HTTPException(413, f"Text is over {MAX_CHARS} characters. Split it into parts.")
-    if usage(u.id)["chars"] + len(text) > DAILY_CHARS:
-        raise HTTPException(429, f"You used today's {DAILY_CHARS} free characters. More tomorrow!")
+    check_chars(u.id, len(text))
     vs, used = await asyncio.to_thread(voice_state_for, body.voice, u, body.mood)
     audio = await asyncio.to_thread(synth, vs, text)
     charge(u.id, chars=len(text))
@@ -1070,8 +1086,7 @@ async def _mcp_call(u: User, name: str, a: dict) -> dict:
         text = body.text.strip()
         if len(text) > MAX_CHARS:
             raise HTTPException(413, f"Text is over {MAX_CHARS} characters. Split it into parts.")
-        if usage(u.id)["chars"] + len(text) > DAILY_CHARS:
-            raise HTTPException(429, f"You used today's {DAILY_CHARS} free characters. More tomorrow!")
+        check_chars(u.id, len(text))
         vs, used = await asyncio.to_thread(voice_state_for, body.voice, u, body.mood)
         audio = await asyncio.to_thread(synth, vs, text)
         charge(u.id, chars=len(text))
